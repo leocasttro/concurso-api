@@ -1,0 +1,14 @@
+import { Prova } from '../../domain/entities/prova.entity';
+
+export class ProvaPresenter {
+  static toHTTP(prova: Prova) {
+    return {
+      id: prova.id,
+      titulo: prova.titulo,
+      cargo: prova.cargo,
+      banca: prova.banca.valor,
+      ano: prova.ano.valor,
+      createdAt: prova.createdAt,
+    };
+  }
+}

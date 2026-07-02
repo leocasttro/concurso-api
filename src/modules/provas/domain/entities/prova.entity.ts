@@ -2,16 +2,19 @@ import { randomUUID } from 'node:crypto';
 import { AnoProva } from '../value-objects/ano-prova.vo';
 import { Banca } from '../value-objects/banca.vo';
 import { ProvaException } from '../exceptions/prova.exception';
+import { AggregateRoot } from '../../../../shared/domain/entities/aggregate-root';
 
-export class Prova {
+export class Prova extends AggregateRoot<string> {
   private constructor(
-    public readonly id: string,
+    id: string,
     public readonly titulo: string,
     public readonly cargo: string,
     public readonly banca: Banca,
     public readonly ano: AnoProva,
-    public readonly createdAt: Date,
-  ) {}
+    createdAt: Date,
+  ) {
+    super(id, createdAt);
+  }
 
   static criar(input: {
     titulo: string;

@@ -7,6 +7,7 @@ import { ProvasModule } from './modules/provas/provas.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      cache: true,
     }),
 
     TypeOrmModule.forRootAsync({
@@ -14,12 +15,13 @@ import { ProvasModule } from './modules/provas/provas.module';
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
+        port: Number(config.get<string>('DB_PORT') ?? 5432),
         username: config.get<string>('DB_USER'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: config.get<string>('DB_SYNCHRONIZE') === 'true',
+        logging: config.get<string>('DB_LOGGING') === 'true',
       }),
     }),
 
