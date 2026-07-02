@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { CriarProvaDto } from '../../application/dtos/criar-prova.dto';
 import { CriarProvaUseCase } from '../../application/use-cases/criar-prova.use-case';
 import { ProvaPresenter } from '../presenters/prova.presenter';
 import { ListarProvasUseCase } from '../../application/use-cases/listar-provas.use-case';
 import { BuscarProvaPorIdUseCase } from '../../application/use-cases/buscar-prova-por-id.use-case';
 import { UuidValidationPipe } from '../../../../shared/presentation/pipes/uuid-validation.pipe';
+import { AtualizarProvaUseCase } from '../../application/use-cases/atualizar-prova.use-case';
 
 @Controller('provas')
 export class ProvasController {
@@ -12,6 +13,7 @@ export class ProvasController {
     private readonly criarProvaUseCase: CriarProvaUseCase,
     private readonly listarProvasUseCase: ListarProvasUseCase,
     private readonly buscarProvaPorIdUseCase: BuscarProvaPorIdUseCase,
+    private readonly atualizarProvaUseCase: AtualizarProvaUseCase,
   ) {}
 
   @Post()
@@ -35,6 +37,22 @@ export class ProvasController {
   @Get(':id')
   async buscarPorId(@Param('id', UuidValidationPipe) id: string) {
     const prova = await this.buscarProvaPorIdUseCase.execute({ id });
+
+    return ProvaPresenter.toHTTP(prova);
+  }
+
+  @Put(':id')
+  async atualizar(
+    @Param('id', UuidValidationPipe) id: string,
+    @Body() dto: CriarProvaDto,
+  ) {
+    const prova = await this.atualizarProvaUseCase.execute({
+      id,
+      titulo: dto.titulo,
+      cargo: dto.cargo,
+      banca: dto.banca,
+      ano: dto.ano,
+    });
 
     return ProvaPresenter.toHTTP(prova);
   }

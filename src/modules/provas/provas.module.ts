@@ -7,6 +7,7 @@ import { TypeOrmProvaRepository } from './infra/persistence/repositories/typeorm
 import { ProvasController } from './presentation/controllers/provas.controller';
 import { ListarProvasUseCase } from './application/use-cases/listar-provas.use-case';
 import { BuscarProvaPorIdUseCase } from './application/use-cases/buscar-prova-por-id.use-case';
+import { AtualizarProvaUseCase } from './application/use-cases/atualizar-prova.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ProvaOrmEntity])],
@@ -15,6 +16,7 @@ import { BuscarProvaPorIdUseCase } from './application/use-cases/buscar-prova-po
     CriarProvaUseCase,
     ListarProvasUseCase,
     BuscarProvaPorIdUseCase,
+    AtualizarProvaUseCase,
     {
       provide: PROVA_REPOSITORY,
       useClass: TypeOrmProvaRepository,
