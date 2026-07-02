@@ -32,4 +32,8 @@ export class TypeOrmProvaRepository implements ProvaRepository {
 
     return entity ? ProvaMapper.toDomain(entity) : null;
   }
+
+  async remover(id: string): Promise<void> {
+    await this.repository.delete({ id });
+  }
 }

@@ -6,4 +6,5 @@ export interface ProvaRepository {
   salvar(prova: Prova): Promise<Prova>;
   listar(): Promise<Prova[]>;
   buscarPorId(id: string): Promise<Prova | null>;
+  remover(id: string): Promise<void>;
 }

@@ -8,6 +8,7 @@ import { ProvasController } from './presentation/controllers/provas.controller';
 import { ListarProvasUseCase } from './application/use-cases/listar-provas.use-case';
 import { BuscarProvaPorIdUseCase } from './application/use-cases/buscar-prova-por-id.use-case';
 import { AtualizarProvaUseCase } from './application/use-cases/atualizar-prova.use-case';
+import { RemoverProvaUseCase } from './application/use-cases/remover-prova.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ProvaOrmEntity])],
@@ -17,6 +18,7 @@ import { AtualizarProvaUseCase } from './application/use-cases/atualizar-prova.u
     ListarProvasUseCase,
     BuscarProvaPorIdUseCase,
     AtualizarProvaUseCase,
+    RemoverProvaUseCase,
     {
       provide: PROVA_REPOSITORY,
       useClass: TypeOrmProvaRepository,
