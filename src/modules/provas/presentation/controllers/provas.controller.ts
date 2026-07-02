@@ -4,6 +4,7 @@ import { CriarProvaUseCase } from '../../application/use-cases/criar-prova.use-c
 import { ProvaPresenter } from '../presenters/prova.presenter';
 import { ListarProvasUseCase } from '../../application/use-cases/listar-provas.use-case';
 import { BuscarProvaPorIdUseCase } from '../../application/use-cases/buscar-prova-por-id.use-case';
+import { UuidValidationPipe } from '../../../../shared/presentation/pipes/uuid-validation.pipe';
 
 @Controller('provas')
 export class ProvasController {
@@ -32,7 +33,7 @@ export class ProvasController {
   }
 
   @Get(':id')
-  async buscarPorId(@Param('id') id: string) {
+  async buscarPorId(@Param('id', UuidValidationPipe) id: string) {
     const prova = await this.buscarProvaPorIdUseCase.execute({ id });
 
     return ProvaPresenter.toHTTP(prova);
