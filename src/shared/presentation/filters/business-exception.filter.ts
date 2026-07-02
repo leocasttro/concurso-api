@@ -13,8 +13,8 @@ export class BusinessExceptionFilter implements ExceptionFilter<BusinessExceptio
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
 
-    response.status(HttpStatus.BAD_REQUEST).json({
-      statusCode: HttpStatus.BAD_REQUEST,
+    response.status(exception.status).json({
+      statusCode: exception.status,
       error: exception.code,
       message: exception.message,
     });
