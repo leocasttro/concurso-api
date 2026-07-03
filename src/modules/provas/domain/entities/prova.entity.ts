@@ -3,6 +3,10 @@ import { AnoProva } from '../value-objects/ano-prova.vo';
 import { Banca } from '../value-objects/banca.vo';
 import { ProvaException } from '../exceptions/prova.exception';
 import { AggregateRoot } from '../../../../shared/domain/entities/aggregate-root';
+import {
+  StatusProva,
+  StatusProvaValor,
+} from '../value-objects/status-prova.vo';
 
 export class Prova extends AggregateRoot<string> {
   private constructor(
@@ -11,6 +15,7 @@ export class Prova extends AggregateRoot<string> {
     public cargo: string,
     public banca: Banca,
     public ano: AnoProva,
+    public status: StatusProva,
     createdAt: Date,
     updatedAt?: Date,
   ) {
@@ -37,6 +42,7 @@ export class Prova extends AggregateRoot<string> {
       input.cargo.trim(),
       Banca.criar(input.banca),
       AnoProva.criar(input.ano),
+      StatusProva.rascunho(),
       new Date(),
     );
   }
@@ -65,6 +71,7 @@ export class Prova extends AggregateRoot<string> {
     cargo: string;
     banca: string;
     ano: number;
+    status: StatusProvaValor;
     createdAt: Date;
     updatedAt?: Date;
   }): Prova {
@@ -74,8 +81,21 @@ export class Prova extends AggregateRoot<string> {
       input.cargo,
       Banca.criar(input.banca),
       AnoProva.criar(input.ano),
+      StatusProva.criar(input.status),
       input.createdAt,
       input.updatedAt,
     );
+  }
+
+  publicar(): void {
+    this.status = StatusProva.criar(StatusProvaValor.PUBLICADA);
+  }
+
+  enviarParaRevisao(): void {
+    this.status = StatusProva.criar(StatusProvaValor.REVISAO);
+  }
+
+  voltarParaRascunho(): void {
+    this.status = StatusProva.rascunho();
   }
 }

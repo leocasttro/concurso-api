@@ -1,5 +1,6 @@
 import { Prova } from '../../../domain/entities/prova.entity';
 import { ProvaException } from '../../../domain/exceptions/prova.exception';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('Prova', () => {
   it('deve criar uma prova válida', () => {
@@ -15,6 +16,7 @@ describe('Prova', () => {
     expect(prova.cargo).toBe('Agente');
     expect(prova.banca.valor).toBe('CEBRASPE');
     expect(prova.ano.valor).toBe(2024);
+    expect(prova.status.valor).toBe(StatusProvaValor.RASCUNHO);
     expect(prova.createdAt).toBeInstanceOf(Date);
   });
 
@@ -27,6 +29,7 @@ describe('Prova', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt,
     });
 
@@ -35,6 +38,7 @@ describe('Prova', () => {
     expect(prova.cargo).toBe('Agente');
     expect(prova.banca.valor).toBe('CEBRASPE');
     expect(prova.ano.valor).toBe(2024);
+    expect(prova.status.valor).toBe(StatusProvaValor.PUBLICADA);
     expect(prova.createdAt).toBe(createdAt);
   });
 
@@ -45,6 +49,7 @@ describe('Prova', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt: new Date(),
     });
 
@@ -59,6 +64,7 @@ describe('Prova', () => {
     expect(prova.cargo).toBe('Policial Rodoviário Federal');
     expect(prova.banca.valor).toBe('FGV');
     expect(prova.ano.valor).toBe(2025);
+    expect(prova.status.valor).toBe(StatusProvaValor.PUBLICADA);
   });
 
   it('deve lançar ProvaException ao criar prova sem título', () => {

@@ -1,6 +1,7 @@
 import { CriarProvaUseCase } from '../../../application/use-cases/criar-prova.use-case';
 import { ProvaRepository } from '../../../domain/repositories/prova.repository';
 import { Prova } from '../../../domain/entities/prova.entity';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('CriarProvaUseCase', () => {
   let useCase: CriarProvaUseCase;
@@ -36,6 +37,7 @@ describe('CriarProvaUseCase', () => {
     expect(resultado.titulo).toBe('Prova PF');
     expect(resultado.cargo).toBe('Agente');
     expect(resultado.banca.valor).toBe('CEBRASPE');
+    expect(resultado.status.valor).toBe(StatusProvaValor.RASCUNHO);
     expect(resultado.ano.valor).toBe(2024);
     expect(salvarMock).toHaveBeenCalledTimes(1);
     expect(salvarMock).toHaveBeenCalledWith(resultado);

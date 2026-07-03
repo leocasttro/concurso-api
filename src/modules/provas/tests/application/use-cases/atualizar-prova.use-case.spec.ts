@@ -2,6 +2,7 @@ import { AtualizarProvaUseCase } from '../../../application/use-cases/atualizar-
 import { ProvaRepository } from '../../../domain/repositories/prova.repository';
 import { Prova } from '../../../domain/entities/prova.entity';
 import { ProvaNaoEncontradaException } from '../../../domain/exceptions/prova-nao-encontrada.exception';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('AtualizarProvaUseCase', () => {
   let useCase: AtualizarProvaUseCase;
@@ -32,6 +33,7 @@ describe('AtualizarProvaUseCase', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt: new Date(),
     });
 
@@ -55,6 +57,7 @@ describe('AtualizarProvaUseCase', () => {
     expect(resultado.cargo).toBe('Agente');
     expect(resultado.banca.valor).toBe('CEBRASPE');
     expect(resultado.ano.valor).toBe(2024);
+    expect(resultado.status.valor).toBe(StatusProvaValor.PUBLICADA);
     expect(salvarMock).toHaveBeenCalledTimes(1);
     expect(salvarMock).toHaveBeenCalledWith(resultado);
   });

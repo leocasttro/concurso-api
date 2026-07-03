@@ -61,6 +61,10 @@ export class TypeOrmProvaListQueryBuilder {
       where.ano = input.ano;
     }
 
+    if (input.status) {
+      where.status = input.status;
+    }
+
     return where;
   }
 

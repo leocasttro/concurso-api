@@ -1,6 +1,7 @@
 import { Prova } from '../../../domain/entities/prova.entity';
 import { ProvaMapper } from '../../../infra/mappers/prova.mapper';
 import { ProvaOrmEntity } from '../../../infra/persistence/entities/prova.orm-entity';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('ProvaMapper', () => {
   it('deve converter ProvaOrmEntity para Prova de domínio', () => {
@@ -13,6 +14,7 @@ describe('ProvaMapper', () => {
     entity.cargo = 'Agente';
     entity.banca = 'CEBRASPE';
     entity.ano = 2024;
+    entity.status = StatusProvaValor.PUBLICADA;
     entity.createdAt = createdAt;
     entity.updatedAt = updatedAt;
 
@@ -24,6 +26,7 @@ describe('ProvaMapper', () => {
     expect(prova.cargo).toBe('Agente');
     expect(prova.banca.valor).toBe('CEBRASPE');
     expect(prova.ano.valor).toBe(2024);
+    expect(prova.status.valor).toBe(StatusProvaValor.PUBLICADA);
     expect(prova.createdAt).toBe(createdAt);
     expect(prova.updatedAt).toBe(updatedAt);
   });
@@ -38,6 +41,7 @@ describe('ProvaMapper', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt,
       updatedAt,
     });
@@ -50,6 +54,7 @@ describe('ProvaMapper', () => {
     expect(entity.cargo).toBe('Agente');
     expect(entity.banca).toBe('CEBRASPE');
     expect(entity.ano).toBe(2024);
+    expect(entity.status).toBe(StatusProvaValor.PUBLICADA);
     expect(entity.createdAt).toBe(createdAt);
     expect(entity.updatedAt).toBe(updatedAt);
   });

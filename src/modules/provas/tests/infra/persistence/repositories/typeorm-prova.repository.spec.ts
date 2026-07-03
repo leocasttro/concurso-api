@@ -1,5 +1,6 @@
 import type { Repository } from 'typeorm';
 import { Prova } from '../../../../domain/entities/prova.entity';
+import { StatusProvaValor } from '../../../../domain/value-objects/status-prova.vo';
 import { ProvaOrmEntity } from '../../../../infra/persistence/entities/prova.orm-entity';
 import { TypeOrmProvaRepository } from '../../../../infra/persistence/repositories/typeorm-prova.repository';
 
@@ -29,6 +30,7 @@ describe('TypeOrmProvaRepository', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt: new Date(),
     });
 
@@ -46,6 +48,7 @@ describe('TypeOrmProvaRepository', () => {
         cargo: prova.cargo,
         banca: prova.banca.valor,
         ano: prova.ano.valor,
+        status: prova.status.valor,
       }),
     );
     expect(resultado).toBeInstanceOf(Prova);
@@ -59,6 +62,7 @@ describe('TypeOrmProvaRepository', () => {
     entity.cargo = 'Agente';
     entity.banca = 'CEBRASPE';
     entity.ano = 2024;
+    entity.status = StatusProvaValor.PUBLICADA;
     entity.createdAt = new Date();
 
     typeOrmRepository.find.mockResolvedValue([entity]);
@@ -85,6 +89,7 @@ describe('TypeOrmProvaRepository', () => {
     entity.cargo = 'Agente';
     entity.banca = 'CEBRASPE';
     entity.ano = 2024;
+    entity.status = StatusProvaValor.PUBLICADA;
     entity.createdAt = new Date();
 
     typeOrmRepository.findOne.mockResolvedValue(entity);

@@ -5,6 +5,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 @Entity('provas')
 export class ProvaOrmEntity {
@@ -22,6 +23,13 @@ export class ProvaOrmEntity {
 
   @Column()
   ano: number;
+
+  @Column({
+    type: 'enum',
+    enum: StatusProvaValor,
+    default: StatusProvaValor.RASCUNHO,
+  })
+  status: StatusProvaValor;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

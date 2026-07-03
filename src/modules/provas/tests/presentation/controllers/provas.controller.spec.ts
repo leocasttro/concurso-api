@@ -5,6 +5,7 @@ import { CriarProvaUseCase } from '../../../application/use-cases/criar-prova.us
 import { ListarProvasUseCase } from '../../../application/use-cases/listar-provas.use-case';
 import { RemoverProvaUseCase } from '../../../application/use-cases/remover-prova.use-case';
 import { ProvasController } from '../../../presentation/controllers/provas.controller';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('ProvasController', () => {
   let controller: ProvasController;
@@ -42,6 +43,7 @@ describe('ProvasController', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.RASCUNHO,
       createdAt: new Date(),
     });
 
@@ -66,6 +68,7 @@ describe('ProvasController', () => {
       cargo: prova.cargo,
       banca: prova.banca.valor,
       ano: prova.ano.valor,
+      status: prova.status.valor,
       createdAt: prova.createdAt,
     });
   });
@@ -77,6 +80,7 @@ describe('ProvasController', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt: new Date(),
     });
 
@@ -100,6 +104,7 @@ describe('ProvasController', () => {
         cargo: prova.cargo,
         banca: prova.banca.valor,
         ano: prova.ano.valor,
+        status: prova.status.valor,
         createdAt: prova.createdAt,
       },
     ]);
@@ -114,6 +119,7 @@ describe('ProvasController', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt: new Date(),
     });
 
@@ -134,6 +140,7 @@ describe('ProvasController', () => {
       cargo: 'Policial Rodoviário Federal',
       banca: 'FGV',
       ano: 2025,
+      status: StatusProvaValor.REVISAO,
       createdAt: new Date(),
     });
 

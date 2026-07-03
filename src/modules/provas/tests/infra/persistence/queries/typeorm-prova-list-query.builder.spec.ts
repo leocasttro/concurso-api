@@ -1,4 +1,5 @@
 import { FindOperator } from 'typeorm';
+import { StatusProvaValor } from '../../../../domain/value-objects/status-prova.vo';
 import { TypeOrmProvaListQueryBuilder } from '../../../../infra/persistence/queries/typeorm-prova-list-query.builder';
 
 describe('TypeOrmProvaListQueryBuilder', () => {
@@ -27,11 +28,13 @@ describe('TypeOrmProvaListQueryBuilder', () => {
     const query = TypeOrmProvaListQueryBuilder.build({
       banca: ' cebraspe ',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
     });
 
     expect(query.where).toEqual({
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
     });
   });
 
@@ -59,6 +62,7 @@ describe('TypeOrmProvaListQueryBuilder', () => {
       search: 'agente',
       banca: 'cebraspe',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
     });
 
     expect(Array.isArray(query.where)).toBe(true);
@@ -69,10 +73,12 @@ describe('TypeOrmProvaListQueryBuilder', () => {
     expect(where[0]).toMatchObject({
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
     });
     expect(where[1]).toMatchObject({
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
     });
 
     expect(where[0]).toHaveProperty('titulo');

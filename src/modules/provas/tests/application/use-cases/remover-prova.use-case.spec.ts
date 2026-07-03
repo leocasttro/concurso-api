@@ -2,6 +2,7 @@ import { RemoverProvaUseCase } from '../../../application/use-cases/remover-prov
 import { Prova } from '../../../domain/entities/prova.entity';
 import { ProvaNaoEncontradaException } from '../../../domain/exceptions/prova-nao-encontrada.exception';
 import type { ProvaRepository } from '../../../domain/repositories/prova.repository';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('RemoverProvaUseCase', () => {
   let useCase: RemoverProvaUseCase;
@@ -32,6 +33,7 @@ describe('RemoverProvaUseCase', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt: new Date(),
     });
 

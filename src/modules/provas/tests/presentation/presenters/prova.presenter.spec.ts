@@ -1,5 +1,6 @@
 import { Prova } from '../../../domain/entities/prova.entity';
 import { ProvaPresenter } from '../../../presentation/presenters/prova.presenter';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('ProvaPresenter', () => {
   it('deve converter uma prova para resposta HTTP', () => {
@@ -11,6 +12,7 @@ describe('ProvaPresenter', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt,
     });
 
@@ -22,6 +24,7 @@ describe('ProvaPresenter', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt,
     });
   });

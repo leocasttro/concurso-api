@@ -2,6 +2,7 @@ import { Prova } from '../../../domain/entities/prova.entity';
 import { ProvaNaoEncontradaException } from '../../../domain/exceptions/prova-nao-encontrada.exception';
 import type { ProvaRepository } from '../../../domain/repositories/prova.repository';
 import { BuscarProvaPorIdUseCase } from '../../../application/use-cases/buscar-prova-por-id.use-case';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('BuscarProvaPorIdUseCase', () => {
   let useCase: BuscarProvaPorIdUseCase;
@@ -30,6 +31,7 @@ describe('BuscarProvaPorIdUseCase', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      status: StatusProvaValor.PUBLICADA,
       createdAt: new Date(),
     });
 

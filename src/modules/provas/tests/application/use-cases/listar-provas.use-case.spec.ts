@@ -1,6 +1,7 @@
 import { ListarProvasUseCase } from '../../../application/use-cases/listar-provas.use-case';
 import { Prova } from '../../../domain/entities/prova.entity';
 import type { ProvaRepository } from '../../../domain/repositories/prova.repository';
+import { StatusProvaValor } from '../../../domain/value-objects/status-prova.vo';
 
 describe('ListarProvasUseCase', () => {
   let useCase: ListarProvasUseCase;
@@ -30,6 +31,7 @@ describe('ListarProvasUseCase', () => {
         cargo: 'Agente',
         banca: 'CEBRASPE',
         ano: 2024,
+        status: StatusProvaValor.PUBLICADA,
         createdAt: new Date(),
       }),
       Prova.reconstituir({
@@ -38,6 +40,7 @@ describe('ListarProvasUseCase', () => {
         cargo: 'Policial Rodoviário Federal',
         banca: 'FGV',
         ano: 2025,
+        status: StatusProvaValor.RASCUNHO,
         createdAt: new Date(),
       }),
     ];
