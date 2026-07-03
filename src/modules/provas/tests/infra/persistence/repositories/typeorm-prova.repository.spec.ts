@@ -63,10 +63,13 @@ describe('TypeOrmProvaRepository', () => {
 
     typeOrmRepository.find.mockResolvedValue([entity]);
 
-    const resultado = await repository.listar();
+    const resultado = await repository.listar({});
 
     expect(typeOrmRepository.find).toHaveBeenCalledWith({
+      where: {},
       order: { createdAt: 'DESC' },
+      skip: 0,
+      take: 12,
     });
     expect(resultado).toHaveLength(1);
     expect(resultado[0]).toBeInstanceOf(Prova);

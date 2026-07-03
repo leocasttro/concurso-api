@@ -21,6 +21,8 @@ describe('ListarProvasUseCase', () => {
   });
 
   it('deve listar todas as provas', async () => {
+    const input = {};
+
     const provas = [
       Prova.reconstituir({
         id: '550e8400-e29b-41d4-a716-446655440000',
@@ -42,19 +44,41 @@ describe('ListarProvasUseCase', () => {
 
     listarMock.mockResolvedValue(provas);
 
-    const resultado = await useCase.execute();
+    const resultado = await useCase.execute(input);
 
     expect(resultado).toHaveLength(2);
     expect(resultado).toBe(provas);
     expect(listarMock).toHaveBeenCalledTimes(1);
+    expect(listarMock).toHaveBeenCalledWith(input);
+  });
+
+  it('deve repassar filtros para o repositório', async () => {
+    const input = {
+      search: 'agente',
+      banca: 'CEBRASPE',
+      cargo: 'Agente',
+      ano: 2024,
+      page: 2,
+      limit: 12,
+    };
+
+    listarMock.mockResolvedValue([]);
+
+    const resultado = await useCase.execute(input);
+
+    expect(resultado).toEqual([]);
+    expect(listarMock).toHaveBeenCalledWith(input);
   });
 
   it('deve retornar uma lista vazia quando não houver provas', async () => {
+    const input = {};
+
     listarMock.mockResolvedValue([]);
 
-    const resultado = await useCase.execute();
+    const resultado = await useCase.execute(input);
 
     expect(resultado).toEqual([]);
     expect(listarMock).toHaveBeenCalledTimes(1);
+    expect(listarMock).toHaveBeenCalledWith(input);
   });
 });

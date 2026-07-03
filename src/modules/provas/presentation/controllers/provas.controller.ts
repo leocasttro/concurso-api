@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CriarProvaDto } from '../../application/dtos/criar-prova.dto';
 import { CriarProvaUseCase } from '../../application/use-cases/criar-prova.use-case';
@@ -18,6 +19,7 @@ import { UuidValidationPipe } from '../../../../shared/presentation/pipes/uuid-v
 import { AtualizarProvaUseCase } from '../../application/use-cases/atualizar-prova.use-case';
 import { RemoverProvaUseCase } from '../../application/use-cases/remover-prova.use-case';
 import { AtualizarProvaDto } from '../../application/dtos/atualizar-prova.dto';
+import { ListarProvasQueryDto } from '../../application/dtos/listar-provas-query.dto';
 
 @Controller('provas')
 export class ProvasController {
@@ -40,9 +42,18 @@ export class ProvasController {
 
     return ProvaPresenter.toHTTP(prova);
   }
+
   @Get()
-  async listar() {
-    const provas = await this.listarProvasUseCase.execute();
+  async listar(@Query() query: ListarProvasQueryDto) {
+    const provas = await this.listarProvasUseCase.execute({
+      search: query.search,
+      banca: query.banca,
+      cargo: query.cargo,
+      ano: query.ano,
+      status: query.status,
+      page: query.page,
+      limit: query.limit,
+    });
 
     return provas.map((prova) => ProvaPresenter.toHTTP(prova));
   }

@@ -82,9 +82,17 @@ describe('ProvasController', () => {
 
     listarExecuteMock.mockResolvedValue([prova]);
 
-    const resultado = await controller.listar();
+    const resultado = await controller.listar({});
 
-    expect(listarExecuteMock).toHaveBeenCalledTimes(1);
+    expect(listarExecuteMock).toHaveBeenCalledWith({
+      search: undefined,
+      banca: undefined,
+      cargo: undefined,
+      ano: undefined,
+      status: undefined,
+      page: undefined,
+      limit: undefined,
+    });
     expect(resultado).toEqual([
       {
         id: prova.id,
