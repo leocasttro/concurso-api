@@ -3,4 +3,5 @@ export type CriarProvaInput = {
   cargo: string;
   banca: string;
   ano: number;
+  categoria: string;
 };

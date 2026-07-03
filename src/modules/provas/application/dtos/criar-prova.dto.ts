@@ -16,4 +16,8 @@ export class CriarProvaDto {
   @IsInt()
   @Min(1900)
   ano: number;
+
+  @IsString()
+  @IsNotEmpty()
+  categoria: string;
 }

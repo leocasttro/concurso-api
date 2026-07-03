@@ -41,6 +41,13 @@ export class TypeOrmProvaListQueryBuilder {
       });
     }
 
+    if (!input.categoria?.trim()) {
+      searchWhere.push({
+        ...baseWhere,
+        categoria: ILike(`%${search}%`),
+      });
+    }
+
     return searchWhere;
   }
 
@@ -63,6 +70,10 @@ export class TypeOrmProvaListQueryBuilder {
 
     if (input.status) {
       where.status = input.status;
+    }
+
+    if (input.categoria?.trim()) {
+      where.categoria = ILike(`%${input.categoria.trim()}%`);
     }
 
     return where;

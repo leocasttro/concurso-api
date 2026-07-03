@@ -44,6 +44,7 @@ describe('ProvasController', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.RASCUNHO,
+      categoria: 'SEGURANÇA',
       createdAt: new Date(),
     });
 
@@ -54,6 +55,7 @@ describe('ProvasController', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      categoria: 'Segurança',
     });
 
     expect(criarExecuteMock).toHaveBeenCalledWith({
@@ -61,6 +63,7 @@ describe('ProvasController', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      categoria: 'Segurança',
     });
     expect(resultado).toEqual({
       id: prova.id,
@@ -69,6 +72,7 @@ describe('ProvasController', () => {
       banca: prova.banca.valor,
       ano: prova.ano.valor,
       status: prova.status.valor,
+      categoria: prova.categoria.valor,
       createdAt: prova.createdAt,
     });
   });
@@ -81,6 +85,7 @@ describe('ProvasController', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt: new Date(),
     });
 
@@ -93,6 +98,7 @@ describe('ProvasController', () => {
       banca: undefined,
       cargo: undefined,
       ano: undefined,
+      categoria: undefined,
       status: undefined,
       page: undefined,
       limit: undefined,
@@ -105,6 +111,7 @@ describe('ProvasController', () => {
         banca: prova.banca.valor,
         ano: prova.ano.valor,
         status: prova.status.valor,
+        categoria: prova.categoria.valor,
         createdAt: prova.createdAt,
       },
     ]);
@@ -120,6 +127,7 @@ describe('ProvasController', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt: new Date(),
     });
 
@@ -141,6 +149,7 @@ describe('ProvasController', () => {
       banca: 'FGV',
       ano: 2025,
       status: StatusProvaValor.REVISAO,
+      categoria: 'DIREITO',
       createdAt: new Date(),
     });
 
@@ -151,6 +160,7 @@ describe('ProvasController', () => {
       cargo: 'Policial Rodoviário Federal',
       banca: 'FGV',
       ano: 2025,
+      categoria: 'Direito',
     });
 
     expect(atualizarExecuteMock).toHaveBeenCalledWith({
@@ -159,6 +169,7 @@ describe('ProvasController', () => {
       cargo: 'Policial Rodoviário Federal',
       banca: 'FGV',
       ano: 2025,
+      categoria: 'Direito',
     });
     expect(resultado.id).toBe(id);
   });

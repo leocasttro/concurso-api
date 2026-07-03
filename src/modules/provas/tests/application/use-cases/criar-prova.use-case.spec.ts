@@ -27,6 +27,7 @@ describe('CriarProvaUseCase', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      categoria: 'Segurança',
     };
 
     salvarMock.mockImplementation((prova) => Promise.resolve(prova));
@@ -38,6 +39,7 @@ describe('CriarProvaUseCase', () => {
     expect(resultado.cargo).toBe('Agente');
     expect(resultado.banca.valor).toBe('CEBRASPE');
     expect(resultado.status.valor).toBe(StatusProvaValor.RASCUNHO);
+    expect(resultado.categoria.valor).toBe('SEGURANÇA');
     expect(resultado.ano.valor).toBe(2024);
     expect(salvarMock).toHaveBeenCalledTimes(1);
     expect(salvarMock).toHaveBeenCalledWith(resultado);

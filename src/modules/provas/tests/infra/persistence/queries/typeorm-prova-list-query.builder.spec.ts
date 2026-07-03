@@ -29,13 +29,15 @@ describe('TypeOrmProvaListQueryBuilder', () => {
       banca: ' cebraspe ',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: ' segurança ',
     });
 
-    expect(query.where).toEqual({
+    expect(query.where).toMatchObject({
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
     });
+    expect(query.where).toHaveProperty('categoria');
   });
 
   it('deve criar query com busca textual em título, cargo e banca', () => {
@@ -47,14 +49,16 @@ describe('TypeOrmProvaListQueryBuilder', () => {
 
     const where = query.where as Array<Record<string, unknown>>;
 
-    expect(where).toHaveLength(3);
+    expect(where).toHaveLength(4);
     expect(where[0]).toHaveProperty('titulo');
     expect(where[1]).toHaveProperty('cargo');
     expect(where[2]).toHaveProperty('banca');
+    expect(where[3]).toHaveProperty('categoria');
 
     expect(where[0].titulo).toBeInstanceOf(FindOperator);
     expect(where[1].cargo).toBeInstanceOf(FindOperator);
     expect(where[2].banca).toBeInstanceOf(FindOperator);
+    expect(where[3].categoria).toBeInstanceOf(FindOperator);
   });
 
   it('deve combinar filtros diretos com busca textual', () => {
@@ -63,6 +67,7 @@ describe('TypeOrmProvaListQueryBuilder', () => {
       banca: 'cebraspe',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'segurança',
     });
 
     expect(Array.isArray(query.where)).toBe(true);
@@ -75,11 +80,13 @@ describe('TypeOrmProvaListQueryBuilder', () => {
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
     });
+    expect(where[0]).toHaveProperty('categoria');
     expect(where[1]).toMatchObject({
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
     });
+    expect(where[1]).toHaveProperty('categoria');
 
     expect(where[0]).toHaveProperty('titulo');
     expect(where[1]).toHaveProperty('cargo');

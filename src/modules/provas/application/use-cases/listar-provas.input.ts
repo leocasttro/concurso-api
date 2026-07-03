@@ -6,6 +6,7 @@ export type ListarProvasInput = {
   cargo?: string;
   ano?: number;
   status?: StatusProvaValor;
+  categoria?: string;
   page?: number;
   limit?: number;
 };

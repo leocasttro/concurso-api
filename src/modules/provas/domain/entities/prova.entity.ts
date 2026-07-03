@@ -7,6 +7,7 @@ import {
   StatusProva,
   StatusProvaValor,
 } from '../value-objects/status-prova.vo';
+import { CategoriaProvaVO } from '../value-objects/categoria-prova.vo';
 
 export class Prova extends AggregateRoot<string> {
   private constructor(
@@ -16,6 +17,7 @@ export class Prova extends AggregateRoot<string> {
     public banca: Banca,
     public ano: AnoProva,
     public status: StatusProva,
+    public categoria: CategoriaProvaVO,
     createdAt: Date,
     updatedAt?: Date,
   ) {
@@ -27,6 +29,7 @@ export class Prova extends AggregateRoot<string> {
     cargo: string;
     banca: string;
     ano: number;
+    categoria: string;
   }): Prova {
     if (!input.titulo?.trim()) {
       throw new ProvaException('Título da prova é obrigatório.');
@@ -43,6 +46,7 @@ export class Prova extends AggregateRoot<string> {
       Banca.criar(input.banca),
       AnoProva.criar(input.ano),
       StatusProva.rascunho(),
+      CategoriaProvaVO.criar(input.categoria),
       new Date(),
     );
   }
@@ -52,6 +56,7 @@ export class Prova extends AggregateRoot<string> {
     cargo: string;
     banca: string;
     ano: number;
+    categoria: string;
   }): void {
     if (!input.titulo?.trim()) {
       throw new ProvaException('Título da prova é obrigatório.');
@@ -63,6 +68,7 @@ export class Prova extends AggregateRoot<string> {
     this.cargo = input.cargo.trim();
     this.banca = Banca.criar(input.banca);
     this.ano = AnoProva.criar(input.ano);
+    this.categoria = CategoriaProvaVO.criar(input.categoria);
   }
 
   static reconstituir(input: {
@@ -72,6 +78,7 @@ export class Prova extends AggregateRoot<string> {
     banca: string;
     ano: number;
     status: StatusProvaValor;
+    categoria: string;
     createdAt: Date;
     updatedAt?: Date;
   }): Prova {
@@ -82,6 +89,7 @@ export class Prova extends AggregateRoot<string> {
       Banca.criar(input.banca),
       AnoProva.criar(input.ano),
       StatusProva.criar(input.status),
+      CategoriaProvaVO.criar(input.categoria),
       input.createdAt,
       input.updatedAt,
     );

@@ -15,6 +15,7 @@ describe('ProvaMapper', () => {
     entity.banca = 'CEBRASPE';
     entity.ano = 2024;
     entity.status = StatusProvaValor.PUBLICADA;
+    entity.categoria = 'SEGURANÇA';
     entity.createdAt = createdAt;
     entity.updatedAt = updatedAt;
 
@@ -27,6 +28,7 @@ describe('ProvaMapper', () => {
     expect(prova.banca.valor).toBe('CEBRASPE');
     expect(prova.ano.valor).toBe(2024);
     expect(prova.status.valor).toBe(StatusProvaValor.PUBLICADA);
+    expect(prova.categoria.valor).toBe('SEGURANÇA');
     expect(prova.createdAt).toBe(createdAt);
     expect(prova.updatedAt).toBe(updatedAt);
   });
@@ -42,6 +44,7 @@ describe('ProvaMapper', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt,
       updatedAt,
     });
@@ -55,6 +58,7 @@ describe('ProvaMapper', () => {
     expect(entity.banca).toBe('CEBRASPE');
     expect(entity.ano).toBe(2024);
     expect(entity.status).toBe(StatusProvaValor.PUBLICADA);
+    expect(entity.categoria).toBe('SEGURANÇA');
     expect(entity.createdAt).toBe(createdAt);
     expect(entity.updatedAt).toBe(updatedAt);
   });

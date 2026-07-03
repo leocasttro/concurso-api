@@ -31,6 +31,7 @@ describe('TypeOrmProvaRepository', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt: new Date(),
     });
 
@@ -49,6 +50,7 @@ describe('TypeOrmProvaRepository', () => {
         banca: prova.banca.valor,
         ano: prova.ano.valor,
         status: prova.status.valor,
+        categoria: prova.categoria.valor,
       }),
     );
     expect(resultado).toBeInstanceOf(Prova);
@@ -63,6 +65,7 @@ describe('TypeOrmProvaRepository', () => {
     entity.banca = 'CEBRASPE';
     entity.ano = 2024;
     entity.status = StatusProvaValor.PUBLICADA;
+    entity.categoria = 'SEGURANÇA';
     entity.createdAt = new Date();
 
     typeOrmRepository.find.mockResolvedValue([entity]);
@@ -90,6 +93,7 @@ describe('TypeOrmProvaRepository', () => {
     entity.banca = 'CEBRASPE';
     entity.ano = 2024;
     entity.status = StatusProvaValor.PUBLICADA;
+    entity.categoria = 'SEGURANÇA';
     entity.createdAt = new Date();
 
     typeOrmRepository.findOne.mockResolvedValue(entity);

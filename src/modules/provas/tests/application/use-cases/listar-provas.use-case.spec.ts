@@ -32,6 +32,7 @@ describe('ListarProvasUseCase', () => {
         banca: 'CEBRASPE',
         ano: 2024,
         status: StatusProvaValor.PUBLICADA,
+        categoria: 'SEGURANÇA',
         createdAt: new Date(),
       }),
       Prova.reconstituir({
@@ -41,6 +42,7 @@ describe('ListarProvasUseCase', () => {
         banca: 'FGV',
         ano: 2025,
         status: StatusProvaValor.RASCUNHO,
+        categoria: 'DIREITO',
         createdAt: new Date(),
       }),
     ];
@@ -61,6 +63,7 @@ describe('ListarProvasUseCase', () => {
       banca: 'CEBRASPE',
       cargo: 'Agente',
       ano: 2024,
+      categoria: 'Segurança',
       page: 2,
       limit: 12,
     };

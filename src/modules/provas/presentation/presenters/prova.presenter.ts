@@ -9,6 +9,7 @@ export class ProvaPresenter {
       banca: prova.banca.valor,
       ano: prova.ano.valor,
       status: prova.status.valor,
+      categoria: prova.categoria.valor,
       createdAt: prova.createdAt,
     };
   }

@@ -34,6 +34,7 @@ describe('AtualizarProvaUseCase', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt: new Date(),
     });
 
@@ -43,6 +44,7 @@ describe('AtualizarProvaUseCase', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      categoria: 'Direito',
     };
 
     buscarPorIdMock.mockResolvedValue(prova);
@@ -58,6 +60,7 @@ describe('AtualizarProvaUseCase', () => {
     expect(resultado.banca.valor).toBe('CEBRASPE');
     expect(resultado.ano.valor).toBe(2024);
     expect(resultado.status.valor).toBe(StatusProvaValor.PUBLICADA);
+    expect(resultado.categoria.valor).toBe('DIREITO');
     expect(salvarMock).toHaveBeenCalledTimes(1);
     expect(salvarMock).toHaveBeenCalledWith(resultado);
   });
@@ -69,6 +72,7 @@ describe('AtualizarProvaUseCase', () => {
       cargo: 'Policial Rodoviário Federal',
       banca: 'FGV',
       ano: 2025,
+      categoria: 'Direito',
     };
 
     buscarPorIdMock.mockResolvedValue(null);

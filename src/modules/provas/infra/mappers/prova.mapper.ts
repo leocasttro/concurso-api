@@ -10,6 +10,7 @@ export class ProvaMapper {
       banca: entity.banca,
       ano: entity.ano,
       status: entity.status,
+      categoria: entity.categoria,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     });
@@ -24,6 +25,7 @@ export class ProvaMapper {
     entity.banca = prova.banca.valor;
     entity.ano = prova.ano.valor;
     entity.status = prova.status.valor;
+    entity.categoria = prova.categoria.valor;
     entity.createdAt = prova.createdAt;
     entity.updatedAt = prova.updatedAt;
 

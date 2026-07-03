@@ -16,4 +16,8 @@ export class AtualizarProvaDto {
   @IsInt()
   @Min(1900)
   ano: number;
+
+  @IsString()
+  @IsNotEmpty()
+  categoria: string;
 }

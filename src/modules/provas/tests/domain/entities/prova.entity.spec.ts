@@ -9,6 +9,7 @@ describe('Prova', () => {
       cargo: '  Agente  ',
       banca: 'cebraspe',
       ano: 2024,
+      categoria: 'segurança',
     });
 
     expect(prova.id).toBeDefined();
@@ -17,6 +18,7 @@ describe('Prova', () => {
     expect(prova.banca.valor).toBe('CEBRASPE');
     expect(prova.ano.valor).toBe(2024);
     expect(prova.status.valor).toBe(StatusProvaValor.RASCUNHO);
+    expect(prova.categoria.valor).toBe('SEGURANÇA');
     expect(prova.createdAt).toBeInstanceOf(Date);
   });
 
@@ -30,6 +32,7 @@ describe('Prova', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt,
     });
 
@@ -39,6 +42,7 @@ describe('Prova', () => {
     expect(prova.banca.valor).toBe('CEBRASPE');
     expect(prova.ano.valor).toBe(2024);
     expect(prova.status.valor).toBe(StatusProvaValor.PUBLICADA);
+    expect(prova.categoria.valor).toBe('SEGURANÇA');
     expect(prova.createdAt).toBe(createdAt);
   });
 
@@ -50,6 +54,7 @@ describe('Prova', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt: new Date(),
     });
 
@@ -58,6 +63,7 @@ describe('Prova', () => {
       cargo: '  Policial Rodoviário Federal  ',
       banca: 'fgv',
       ano: 2025,
+      categoria: 'direito',
     });
 
     expect(prova.titulo).toBe('Prova PRF');
@@ -65,6 +71,7 @@ describe('Prova', () => {
     expect(prova.banca.valor).toBe('FGV');
     expect(prova.ano.valor).toBe(2025);
     expect(prova.status.valor).toBe(StatusProvaValor.PUBLICADA);
+    expect(prova.categoria.valor).toBe('DIREITO');
   });
 
   it('deve lançar ProvaException ao criar prova sem título', () => {
@@ -74,6 +81,7 @@ describe('Prova', () => {
         cargo: 'Agente',
         banca: 'CEBRASPE',
         ano: 2024,
+        categoria: 'SEGURANÇA',
       }),
     ).toThrow(ProvaException);
   });
@@ -85,6 +93,7 @@ describe('Prova', () => {
         cargo: '',
         banca: 'CEBRASPE',
         ano: 2024,
+        categoria: 'SEGURANÇA',
       }),
     ).toThrow(ProvaException);
   });
@@ -95,6 +104,7 @@ describe('Prova', () => {
       cargo: 'Agente',
       banca: 'CEBRASPE',
       ano: 2024,
+      categoria: 'SEGURANÇA',
     });
 
     expect(() =>
@@ -103,6 +113,7 @@ describe('Prova', () => {
         cargo: 'Agente',
         banca: 'CEBRASPE',
         ano: 2024,
+        categoria: 'SEGURANÇA',
       }),
     ).toThrow(ProvaException);
   });

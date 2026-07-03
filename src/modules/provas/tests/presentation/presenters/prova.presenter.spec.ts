@@ -13,6 +13,7 @@ describe('ProvaPresenter', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt,
     });
 
@@ -25,6 +26,7 @@ describe('ProvaPresenter', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt,
     });
   });

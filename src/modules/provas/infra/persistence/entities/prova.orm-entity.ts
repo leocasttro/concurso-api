@@ -24,6 +24,9 @@ export class ProvaOrmEntity {
   @Column()
   ano: number;
 
+  @Column()
+  categoria: string;
+
   @Column({
     type: 'enum',
     enum: StatusProvaValor,

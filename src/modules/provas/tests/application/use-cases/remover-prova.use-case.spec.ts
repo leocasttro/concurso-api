@@ -34,6 +34,7 @@ describe('RemoverProvaUseCase', () => {
       banca: 'CEBRASPE',
       ano: 2024,
       status: StatusProvaValor.PUBLICADA,
+      categoria: 'SEGURANÇA',
       createdAt: new Date(),
     });
 

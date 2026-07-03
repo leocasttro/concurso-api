@@ -38,6 +38,7 @@ export class ProvasController {
       cargo: dto.cargo,
       banca: dto.banca,
       ano: dto.ano,
+      categoria: dto.categoria,
     });
 
     return ProvaPresenter.toHTTP(prova);
@@ -50,6 +51,7 @@ export class ProvasController {
       banca: query.banca,
       cargo: query.cargo,
       ano: query.ano,
+      categoria: query.categoria,
       status: query.status,
       page: query.page,
       limit: query.limit,
@@ -76,6 +78,7 @@ export class ProvasController {
       cargo: dto.cargo,
       banca: dto.banca,
       ano: dto.ano,
+      categoria: dto.categoria,
     });
 
     return ProvaPresenter.toHTTP(prova);

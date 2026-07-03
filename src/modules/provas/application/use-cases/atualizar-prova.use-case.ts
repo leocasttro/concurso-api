@@ -24,6 +24,7 @@ export class AtualizarProvaUseCase {
       cargo: input.cargo,
       banca: input.banca,
       ano: input.ano,
+      categoria: input.categoria,
     });
 
     return this.provaRepository.salvar(prova);
