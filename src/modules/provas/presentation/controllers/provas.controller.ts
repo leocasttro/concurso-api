@@ -20,6 +20,7 @@ import { AtualizarProvaUseCase } from '../../application/use-cases/atualizar-pro
 import { RemoverProvaUseCase } from '../../application/use-cases/remover-prova.use-case';
 import { AtualizarProvaDto } from '../../application/dtos/atualizar-prova.dto';
 import { ListarProvasQueryDto } from '../../application/dtos/listar-provas-query.dto';
+import type { PaginationMeta } from '../../../../shared/application/pagination/paginated-result';
 
 @Controller('provas')
 export class ProvasController {
@@ -46,7 +47,7 @@ export class ProvasController {
 
   @Get()
   async listar(@Query() query: ListarProvasQueryDto) {
-    const provas = await this.listarProvasUseCase.execute({
+    const resultado = await this.listarProvasUseCase.execute({
       search: query.search,
       banca: query.banca,
       cargo: query.cargo,
@@ -57,7 +58,10 @@ export class ProvasController {
       limit: query.limit,
     });
 
-    return provas.map((prova) => ProvaPresenter.toHTTP(prova));
+    return {
+      data: resultado.data.map((prova) => ProvaPresenter.toHTTP(prova)),
+      meta: resultado.meta,
+    };
   }
 
   @Get(':id')

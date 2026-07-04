@@ -7,13 +7,16 @@ import { TypeOrmProvaRepository } from '../../../../infra/persistence/repositori
 describe('TypeOrmProvaRepository', () => {
   let repository: TypeOrmProvaRepository;
   let typeOrmRepository: jest.Mocked<
-    Pick<Repository<ProvaOrmEntity>, 'save' | 'find' | 'findOne' | 'delete'>
+    Pick<
+      Repository<ProvaOrmEntity>,
+      'save' | 'findAndCount' | 'findOne' | 'delete'
+    >
   >;
 
   beforeEach(() => {
     typeOrmRepository = {
       save: jest.fn(),
-      find: jest.fn(),
+      findAndCount: jest.fn(),
       findOne: jest.fn(),
       delete: jest.fn(),
     };
@@ -68,11 +71,11 @@ describe('TypeOrmProvaRepository', () => {
     entity.categoria = 'SEGURANÇA';
     entity.createdAt = new Date();
 
-    typeOrmRepository.find.mockResolvedValue([entity]);
+    typeOrmRepository.findAndCount.mockResolvedValue([[entity], 1]);
 
     const resultado = await repository.listar({});
 
-    expect(typeOrmRepository.find).toHaveBeenCalledWith({
+    expect(typeOrmRepository.findAndCount).toHaveBeenCalledWith({
       where: {},
       order: { createdAt: 'DESC' },
       skip: 0,
@@ -80,7 +83,12 @@ describe('TypeOrmProvaRepository', () => {
     });
     expect(resultado).toHaveLength(1);
     expect(resultado[0]).toBeInstanceOf(Prova);
-    expect(resultado[0].id).toBe(entity.id);
+    expect(resultado.meta).toEqual({
+      page: 1,
+      limit: 12,
+      total: 1,
+      totalPages: 1,
+    });
   });
 
   it('deve buscar uma prova por id quando ela existir', async () => {

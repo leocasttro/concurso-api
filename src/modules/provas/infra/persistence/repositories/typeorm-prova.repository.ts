@@ -7,6 +7,7 @@ import { ProvaOrmEntity } from '../entities/prova.orm-entity';
 import { ProvaMapper } from '../../mappers/prova.mapper';
 import { ListarProvasInput } from '../../../application/use-cases/listar-provas.input';
 import { TypeOrmProvaListQueryBuilder } from '../queries/typeorm-prova-list-query.builder';
+import { PaginatedResult } from '../../../../../shared/application/pagination/paginated-result';
 
 @Injectable()
 export class TypeOrmProvaRepository implements ProvaRepository {
@@ -21,12 +22,23 @@ export class TypeOrmProvaRepository implements ProvaRepository {
     return ProvaMapper.toDomain(saved);
   }
 
-  async listar(input: ListarProvasInput): Promise<Prova[]> {
-    const entities = await this.repository.find(
+  async listar(input: ListarProvasInput): Promise<PaginatedResult<Prova>> {
+    const page = input.page ?? 1;
+    const limit = input.limit ?? 12;
+
+    const [entities, total] = await this.repository.findAndCount(
       TypeOrmProvaListQueryBuilder.build(input),
     );
 
-    return entities.map((entity) => ProvaMapper.toDomain(entity));
+    return {
+      data: entities.map((entity) => ProvaMapper.toDomain(entity)),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async buscarPorId(id: string): Promise<Prova | null> {
