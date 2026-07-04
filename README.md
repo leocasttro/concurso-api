@@ -1,98 +1,396 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Concurso API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API em NestJS para uma plataforma de estudos para concursos, construída com foco em Clean Architecture, DDD e testes automatizados.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+O projeto ainda está em evolução. Atualmente o módulo mais completo é `provas`, que já serve como base arquitetural para os próximos módulos, principalmente `questoes` e `importacoes`.
 
-## Description
+## Tecnologias
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Node.js
+- TypeScript
+- NestJS
+- TypeORM
+- PostgreSQL
+- class-validator
+- class-transformer
+- Jest
+- ESLint
+- Prettier
 
-## Project setup
+## Arquitetura
 
-```bash
-$ npm install
+O projeto segue uma organização modular inspirada em Clean Architecture e DDD.
+
+Cada módulo tende a ser dividido em:
+
+```txt
+domain
+application
+infra
+presentation
+tests
 ```
 
-## Compile and run the project
+Responsabilidades:
 
-```bash
-# development
-$ npm run start
+- `domain`: entidades, value objects, exceções e contratos de repositório.
+- `application`: casos de uso, inputs e DTOs de aplicação/entrada.
+- `infra`: persistência, entidades ORM, mappers, query builders e implementações de repositórios.
+- `presentation`: controllers, presenters, pipes e filtros HTTP.
+- `tests`: testes unitários organizados por camada dentro do módulo.
 
-# watch mode
-$ npm run start:dev
+Fluxo padrão:
 
-# production mode
-$ npm run start:prod
+```txt
+Controller -> Use Case -> Repository Interface -> Repository TypeORM -> Banco
 ```
 
-## Run tests
+O domínio não depende de NestJS, TypeORM ou HTTP. A infraestrutura conhece detalhes externos, e a apresentação adapta HTTP para os casos de uso.
 
-```bash
-# unit tests
-$ npm run test
+## Shared
 
-# e2e tests
-$ npm run test:e2e
+A pasta `src/shared` contém itens transversais reutilizáveis:
 
-# test coverage
-$ npm run test:cov
+```txt
+src/shared
+├── application
+│   ├── pagination
+│   └── result
+├── domain
+│   ├── entities
+│   ├── events
+│   └── exceptions
+└── presentation
+    ├── filters
+    └── pipes
 ```
 
-## Deployment
+Principais itens:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- `BaseEntity`: base para entidades com identidade.
+- `AggregateRoot`: base para agregados com suporte a eventos de domínio.
+- `BusinessException`: exceção base para erros de negócio.
+- `NotFoundException`: exceção compartilhada para recursos não encontrados.
+- `BusinessExceptionFilter`: transforma exceções de negócio em respostas HTTP.
+- `UuidValidationPipe`: valida parâmetros UUID em rotas HTTP.
+- `PaginatedResult`: formato compartilhado para respostas paginadas.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Módulo Provas
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+O módulo `provas` já possui CRUD, filtros, paginação e testes.
+
+### Entidade principal
+
+`Prova` possui:
+
+- `id`
+- `titulo`
+- `cargo`
+- `banca`
+- `ano`
+- `status`
+- `categoria`
+- `createdAt`
+- `updatedAt`
+
+### Value Objects
+
+- `Banca`
+  - remove espaços
+  - normaliza para maiúsculas
+  - impede valor vazio
+
+- `AnoProva`
+  - exige ano inteiro
+  - impede ano menor que 1900
+  - impede ano maior que o próximo ano
+
+- `StatusProva`
+  - valores aceitos:
+    - `RASCUNHO`
+    - `PUBLICADA`
+    - `REVISAO`
+
+- `CategoriaProvaVO`
+  - remove espaços
+  - normaliza para maiúsculas
+  - impede valor vazio
+
+### Casos de uso
+
+Implementados:
+
+- `CriarProvaUseCase`
+- `ListarProvasUseCase`
+- `BuscarProvaPorIdUseCase`
+- `AtualizarProvaUseCase`
+- `RemoverProvaUseCase`
+
+### Rotas
+
+Base:
+
+```txt
+/provas
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Rotas atuais:
 
-## Resources
+```txt
+POST   /provas
+GET    /provas
+GET    /provas/:id
+PUT    /provas/:id
+DELETE /provas/:id
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### Listagem
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+`GET /provas` suporta:
 
-## Support
+```txt
+search
+banca
+cargo
+ano
+categoria
+status
+page
+limit
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Exemplo:
 
-## Stay in touch
+```txt
+GET /provas?search=agente&banca=CEBRASPE&ano=2024&page=1&limit=12
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Formato da resposta:
 
-## License
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "titulo": "Prova PF",
+      "cargo": "Agente",
+      "banca": "CEBRASPE",
+      "ano": 2024,
+      "status": "PUBLICADA",
+      "categoria": "SEGURANCA",
+      "createdAt": "2026-07-04T00:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 12,
+    "total": 1,
+    "totalPages": 1
+  }
+}
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Observação: a tela de protótipo também mostra `quantidadeQuestoes`. Esse dado ainda não existe no módulo `provas`; ele deve vir naturalmente do próximo módulo, `questoes`.
+
+## Configuração
+
+O projeto usa `ConfigModule` global.
+
+Variáveis esperadas:
+
+```env
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=concurso
+DB_SYNCHRONIZE=true
+DB_LOGGING=false
+```
+
+Notas:
+
+- `DB_SYNCHRONIZE=true` é útil apenas em desenvolvimento.
+- Em produção, use `DB_SYNCHRONIZE=false` e migrations.
+
+## Instalação
+
+```bash
+npm install
+```
+
+## Executar aplicação
+
+Desenvolvimento:
+
+```bash
+npm run start:dev
+```
+
+Execução normal:
+
+```bash
+npm run start
+```
+
+Produção:
+
+```bash
+npm run build
+npm run start:prod
+```
+
+## Testes
+
+Executar todos os testes:
+
+```bash
+npm test
+```
+
+Executar em modo watch:
+
+```bash
+npm run test:watch
+```
+
+Executar cobertura:
+
+```bash
+npm run test:cov
+```
+
+Executar testes e2e:
+
+```bash
+npm run test:e2e
+```
+
+Rodar uma parte específica:
+
+```bash
+npm test -- provas
+npm test -- criar-prova
+npm test -- typeorm-prova
+```
+
+## Lint
+
+Rodar ESLint:
+
+```bash
+npm run lint
+```
+
+Observação: o script atual usa `--fix`, então pode alterar arquivos automaticamente.
+
+Para apenas verificar sem corrigir:
+
+```bash
+npx eslint "src/**/*.ts" "test/**/*.ts"
+```
+
+## Estado atual dos testes
+
+O módulo `provas` possui testes para:
+
+- domínio
+  - entidade `Prova`
+  - value objects `Banca`, `AnoProva`, `CategoriaProvaVO`
+
+- aplicação
+  - criar prova
+  - listar provas
+  - buscar prova por id
+  - atualizar prova
+  - remover prova
+
+- apresentação
+  - controller de provas
+  - presenter de prova
+
+- infraestrutura
+  - mapper de prova
+  - repository TypeORM
+  - query builder da listagem
+
+## Próximos passos
+
+### 1. Módulo Questões
+
+Criar o módulo `questoes`, já pensando que as questões serão geradas por importação de arquivo.
+
+Primeira modelagem sugerida:
+
+```txt
+Questao
+Alternativa
+```
+
+Regras iniciais:
+
+- questão precisa pertencer a uma prova
+- questão precisa ter enunciado
+- questão precisa ter pelo menos duas alternativas
+- questão precisa ter exatamente uma alternativa correta
+- alternativa precisa ter texto
+
+Esse módulo permitirá alimentar `quantidadeQuestoes` nos cards da tela de provas.
+
+### 2. Módulo Importações
+
+Criar fluxo para importar arquivos e gerar provas/questões.
+
+Fluxo esperado:
+
+```txt
+upload de arquivo
+processamento
+extração de prova
+extração de questões
+relatório de erros/sucesso
+revisão manual
+```
+
+### 3. Relacionar Provas e Questões
+
+Depois do módulo `questoes`, a listagem de provas pode passar a retornar:
+
+```txt
+quantidadeQuestoes
+```
+
+Esse dado deve ser calculado a partir das questões vinculadas à prova, não armazenado diretamente como campo principal da entidade `Prova`.
+
+### 4. Autenticação e Usuários
+
+Futuro módulo para:
+
+- cadastro de usuário
+- login
+- perfil
+- permissões
+- progresso individual
+
+### 5. Simulados
+
+Criar simulados a partir de questões já cadastradas/importadas.
+
+Possíveis casos de uso:
+
+- criar simulado
+- responder questão
+- finalizar simulado
+- calcular desempenho
+
+## Observações de arquitetura
+
+- DTOs pertencem à camada de entrada/presentation/application, não ao domínio.
+- Inputs de use case ficam próximos ao caso de uso.
+- Value Objects protegem regras pequenas e importantes do domínio.
+- Presenters convertem entidade de domínio para resposta HTTP.
+- Mappers convertem domínio para persistência e persistência para domínio.
+- Query builders TypeORM ficam em `infra`, porque conhecem detalhes do ORM.
+- Controllers devem ser finos: recebem HTTP, chamam use case e retornam presenter.
