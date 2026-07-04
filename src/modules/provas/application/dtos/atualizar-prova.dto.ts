@@ -1,6 +1,6 @@
 import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 
-export class CriarProvaDto {
+export class AtualizarProvaDto {
   @IsString()
   @IsNotEmpty()
   titulo: string;
