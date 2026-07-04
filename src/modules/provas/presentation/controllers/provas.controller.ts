@@ -20,7 +20,6 @@ import { AtualizarProvaUseCase } from '../../application/use-cases/atualizar-pro
 import { RemoverProvaUseCase } from '../../application/use-cases/remover-prova.use-case';
 import { AtualizarProvaDto } from '../../application/dtos/atualizar-prova.dto';
 import { ListarProvasQueryDto } from '../../application/dtos/listar-provas-query.dto';
-import type { PaginationMeta } from '../../../../shared/application/pagination/paginated-result';
 
 @Controller('provas')
 export class ProvasController {
