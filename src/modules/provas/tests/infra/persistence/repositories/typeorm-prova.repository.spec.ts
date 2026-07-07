@@ -81,8 +81,9 @@ describe('TypeOrmProvaRepository', () => {
       skip: 0,
       take: 12,
     });
-    expect(resultado).toHaveLength(1);
-    expect(resultado[0]).toBeInstanceOf(Prova);
+    expect(resultado.data).toHaveLength(1);
+    expect(resultado.data[0]).toBeInstanceOf(Prova);
+    expect(resultado.data[0].id).toBe(entity.id);
     expect(resultado.meta).toEqual({
       page: 1,
       limit: 12,
