@@ -89,7 +89,15 @@ describe('ProvasController', () => {
       createdAt: new Date(),
     });
 
-    listarExecuteMock.mockResolvedValue([prova]);
+    listarExecuteMock.mockResolvedValue({
+      data: [prova],
+      meta: {
+        page: 1,
+        limit: 12,
+        total: 1,
+        totalPages: 1,
+      },
+    });
 
     const resultado = await controller.listar({});
 
@@ -103,18 +111,26 @@ describe('ProvasController', () => {
       page: undefined,
       limit: undefined,
     });
-    expect(resultado).toEqual([
-      {
-        id: prova.id,
-        titulo: prova.titulo,
-        cargo: prova.cargo,
-        banca: prova.banca.valor,
-        ano: prova.ano.valor,
-        status: prova.status.valor,
-        categoria: prova.categoria.valor,
-        createdAt: prova.createdAt,
+    expect(resultado).toEqual({
+      data: [
+        {
+          id: prova.id,
+          titulo: prova.titulo,
+          cargo: prova.cargo,
+          banca: prova.banca.valor,
+          ano: prova.ano.valor,
+          status: prova.status.valor,
+          categoria: prova.categoria.valor,
+          createdAt: prova.createdAt,
+        },
+      ],
+      meta: {
+        page: 1,
+        limit: 12,
+        total: 1,
+        totalPages: 1,
       },
-    ]);
+    });
   });
 
   it('deve buscar prova por id', async () => {
