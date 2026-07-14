@@ -5,10 +5,10 @@ import { StatusQuestaoValor } from '../../../../domain/value-objects/status-ques
 import { TipoQuestaoValor } from '../../../../domain/value-objects/tipo-questao.vo';
 import { AlternativaOrmEntity } from '../../../../infra/persistence/entities/alternativa.orm-entity';
 import { QuestaoOrmEntity } from '../../../../infra/persistence/entities/questao.orm-entity';
-import { TypeormQuestaoRepository } from '../../../../infra/persistence/repositories/typeorm-questao.repository';
+import { TypeOrmQuestaoRepository } from '../../../../infra/persistence/repositories/typeorm-questao.repository';
 
 describe('TypeormQuestaoRepository', () => {
-  let repository: TypeormQuestaoRepository;
+  let repository: TypeOrmQuestaoRepository;
   let typeOrmRepository: jest.Mocked<
     Pick<Repository<QuestaoOrmEntity>, 'save' | 'find' | 'findOne'>
   >;
@@ -20,7 +20,7 @@ describe('TypeormQuestaoRepository', () => {
       findOne: jest.fn(),
     };
 
-    repository = new TypeormQuestaoRepository(
+    repository = new TypeOrmQuestaoRepository(
       typeOrmRepository as unknown as Repository<QuestaoOrmEntity>,
     );
   });
