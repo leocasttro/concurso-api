@@ -7,7 +7,7 @@ import { Questao } from '../../../domain/entities/questao.entity';
 import { QuestaoMapper } from '../../mappers/questao.mapper';
 
 @Injectable()
-export class TypeormQuestaoRepository implements QuestaoRepository {
+export class TypeOrmQuestaoRepository implements QuestaoRepository {
   constructor(
     @InjectRepository(QuestaoOrmEntity)
     private readonly repository: Repository<QuestaoOrmEntity>,
