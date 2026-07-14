@@ -2,7 +2,7 @@
 
 API em NestJS para uma plataforma de estudos para concursos, construída com foco em Clean Architecture, DDD e testes automatizados.
 
-O projeto ainda está em evolução. Atualmente o módulo mais completo é `provas`, que já serve como base arquitetural para os próximos módulos, principalmente `questoes` e `importacoes`.
+O projeto ainda está em evolução. Atualmente os módulos mais avançados são `provas` e `questoes`, que servem como base arquitetural para os próximos módulos, principalmente `importacoes`, `simulados` e `usuarios`.
 
 ## Tecnologias
 
@@ -190,7 +190,158 @@ Formato da resposta:
 }
 ```
 
-Observação: a tela de protótipo também mostra `quantidadeQuestoes`. Esse dado ainda não existe no módulo `provas`; ele deve vir naturalmente do próximo módulo, `questoes`.
+Observação: a tela de protótipo também mostra `quantidadeQuestoes`. O módulo `questoes` já existe, mas a listagem de provas ainda não agrega essa contagem.
+
+## Módulo Questões
+
+O módulo `questoes` já possui domínio, casos de uso, persistência TypeORM, camada HTTP e testes.
+
+Esse módulo foi modelado pensando em dois fluxos:
+
+- questões criadas manualmente pelo usuário
+- questões importadas a partir de arquivos de prova
+
+### Entidades principais
+
+`Questao` possui:
+
+- `id`
+- `provaId`
+- `numero`
+- `enunciado`
+- `tipo`
+- `status`
+- `alternativas`
+- `gabarito`
+- `disciplina`
+- `assunto`
+- `textoApoio`
+- `createdAt`
+- `updatedAt`
+
+`Alternativa` possui:
+
+- `id`
+- `texto`
+- `letra`
+
+### Value Objects
+
+- `TipoQuestao`
+  - valores aceitos:
+    - `MULTIPLA_ESCOLHA`
+    - `MULTIPLAS_CORRETAS`
+    - `CERTO_ERRADO`
+    - `DISCURSIVA`
+
+- `StatusQuestao`
+  - valores aceitos:
+    - `RASCUNHO`
+    - `IMPORTADA`
+    - `PENDENTE_REVISAO`
+    - `PUBLICADA`
+    - `ANULADA`
+
+- `Gabarito`
+  - suporta alternativas
+  - suporta certo/errado
+  - suporta resposta discursiva
+  - normaliza alternativas para maiúsculas
+  - impede gabarito vazio
+
+### Regras de domínio
+
+Regras já protegidas no domínio:
+
+- questão precisa pertencer a uma prova
+- questão precisa ter enunciado
+- questão objetiva precisa ter alternativas suficientes para publicação
+- questão publicada precisa ter gabarito
+- questão de múltipla escolha deve ter exatamente uma alternativa correta
+- questão de múltiplas corretas deve ter ao menos uma alternativa correta
+- questão importada sem dados suficientes é enviada para revisão
+- alternativa precisa ter texto
+
+### Casos de uso
+
+Implementados:
+
+- `CriarQuestaoUseCase`
+- `ImportarQuestaoUseCase`
+- `ListarQuestoesPorProvaUseCase`
+- `BuscarQuestaoPorIdUseCase`
+- `PublicarQuestaoUseCase`
+- `EnviarQuestaoParaRevisaoUseCase`
+- `AnularQuestaoUseCase`
+
+### Persistência
+
+O módulo possui:
+
+- `QuestaoOrmEntity`
+- `AlternativaOrmEntity`
+- `QuestaoMapper`
+- `TypeOrmQuestaoRepository`
+
+O repository implementa a interface de domínio `QuestaoRepository`, mantendo os casos de uso desacoplados do TypeORM.
+
+### Camada HTTP
+
+Base:
+
+```txt
+/questoes
+```
+
+Rotas atuais:
+
+```txt
+POST  /questoes
+POST  /questoes/importar
+GET   /questoes/prova/:provaId
+GET   /questoes/:id
+PATCH /questoes/:id/publicar
+PATCH /questoes/:id/revisao
+PATCH /questoes/:id/anular
+```
+
+DTOs atuais:
+
+- `CriarQuestaoDto`
+- `ImportarQuestaoDto`
+
+Também existem:
+
+- `QuestaoPresenter`, para converter domínio em resposta HTTP
+- `GabaritoHttpMapper`, para converter entrada HTTP em value object `Gabarito`
+
+Exemplo de criação:
+
+```json
+{
+  "provaId": "550e8400-e29b-41d4-a716-446655440999",
+  "numero": 1,
+  "enunciado": "Constituição Federal de 88 é rígida?",
+  "tipo": "CERTO_ERRADO",
+  "alternativas": [
+    {
+      "texto": "Certo",
+      "letra": "C"
+    },
+    {
+      "texto": "Errado",
+      "letra": "E"
+    }
+  ],
+  "gabarito": {
+    "tipo": "CERTO_ERRADO",
+    "valores": ["CERTO"]
+  },
+  "disciplina": "Direito Constitucional",
+  "assunto": "Constituição",
+  "textoApoio": "Texto de apoio"
+}
+```
 
 ## Configuração
 
@@ -272,8 +423,11 @@ Rodar uma parte específica:
 
 ```bash
 npm test -- provas
+npm test -- questoes
 npm test -- criar-prova
+npm test -- criar-questao
 npm test -- typeorm-prova
+npm test -- typeorm-questao
 ```
 
 ## Lint
@@ -316,28 +470,41 @@ O módulo `provas` possui testes para:
   - repository TypeORM
   - query builder da listagem
 
+O módulo `questoes` possui testes para:
+
+- domínio
+  - entidade `Questao`
+  - entidade `Alternativa`
+  - value objects `TipoQuestao`, `StatusQuestao`, `Gabarito`
+
+- aplicação
+  - criar questão
+  - importar questão
+  - listar questões por prova
+  - buscar questão por id
+  - publicar questão
+  - enviar questão para revisão
+  - anular questão
+
+- apresentação
+  - controller de questões
+  - presenter de questão
+  - mapper HTTP de gabarito
+
+- infraestrutura
+  - mapper de questão
+  - repository TypeORM de questão
+
 ## Próximos passos
 
-### 1. Módulo Questões
+### 1. Ajustes finais do módulo Questões
 
-Criar o módulo `questoes`, já pensando que as questões serão geradas por importação de arquivo.
+Possíveis melhorias antes de avançar:
 
-Primeira modelagem sugerida:
-
-```txt
-Questao
-Alternativa
-```
-
-Regras iniciais:
-
-- questão precisa pertencer a uma prova
-- questão precisa ter enunciado
-- questão precisa ter pelo menos duas alternativas
-- questão precisa ter exatamente uma alternativa correta
-- alternativa precisa ter texto
-
-Esse módulo permitirá alimentar `quantidadeQuestoes` nos cards da tela de provas.
+- criar `AtualizarQuestaoUseCase`
+- criar `RemoverQuestaoUseCase`
+- decidir se listagem de questões precisa de paginação e filtros
+- agregar `quantidadeQuestoes` na listagem de provas
 
 ### 2. Módulo Importações
 
@@ -354,9 +521,23 @@ relatório de erros/sucesso
 revisão manual
 ```
 
+Esse fluxo deve ficar em um módulo próprio, porque importar arquivo envolve uma regra diferente de simplesmente cadastrar questão.
+
+Fluxo provável:
+
+- receber arquivo
+- identificar tipo do arquivo
+- extrair texto
+- separar cabeçalho da prova
+- separar questões
+- identificar alternativas
+- identificar gabarito quando existir
+- registrar inconsistências
+- permitir revisão antes de publicar
+
 ### 3. Relacionar Provas e Questões
 
-Depois do módulo `questoes`, a listagem de provas pode passar a retornar:
+A listagem de provas pode passar a retornar:
 
 ```txt
 quantidadeQuestoes
@@ -394,3 +575,4 @@ Possíveis casos de uso:
 - Mappers convertem domínio para persistência e persistência para domínio.
 - Query builders TypeORM ficam em `infra`, porque conhecem detalhes do ORM.
 - Controllers devem ser finos: recebem HTTP, chamam use case e retornam presenter.
+- Mappers HTTP ficam na camada `presentation`, porque adaptam dados de entrada/saída da API.
