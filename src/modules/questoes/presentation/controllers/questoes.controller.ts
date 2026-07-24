@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CriarQuestaoDto } from '../../application/dtos/criar-questao.dto';
 import { ImportarQuestaoDto } from '../../application/dtos/importar-questao.dto';
 import { AnularQuestaoUseCase } from '../../application/use-cases/anular-questao.use-case';
@@ -11,6 +11,8 @@ import { PublicarQuestaoUseCase } from '../../application/use-cases/publicar-que
 import { GabaritoHttpMapper } from '../mappers/gabarito-http.mapper';
 import { QuestaoPresenter } from '../presenters/questao.presenter';
 import { UuidValidationPipe } from '../../../../shared/presentation/pipes/uuid-validation.pipe';
+import { AtualizarQuestaoDto } from '../../application/dtos/atualizar-questao.dto';
+import { AtualizarQuestaoUseCase } from '../../application/use-cases/atualizar-questao.use-case';
 
 @Controller('questoes')
 export class QuestoesController {
@@ -22,6 +24,7 @@ export class QuestoesController {
     private readonly publicarQuestaoUseCase: PublicarQuestaoUseCase,
     private readonly enviarQuestaoParaRevisaoUseCase: EnviarQuestaoParaRevisaoUseCase,
     private readonly anularQuestaoUseCase: AnularQuestaoUseCase,
+    private readonly atualizarQuestaoUseCase: AtualizarQuestaoUseCase,
   ) {}
 
   @Post()
@@ -91,6 +94,26 @@ export class QuestoesController {
   @Patch(':id/anular')
   async anular(@Param('id', UuidValidationPipe) id: string) {
     const questao = await this.anularQuestaoUseCase.execute({ id });
+
+    return QuestaoPresenter.toHTTP(questao);
+  }
+
+  @Put(':id')
+  async atualizar(
+    @Param('id', UuidValidationPipe) id: string,
+    @Body() dto: AtualizarQuestaoDto,
+  ) {
+    const questao = await this.atualizarQuestaoUseCase.execute({
+      id,
+      numero: dto.numero,
+      enunciado: dto.enunciado,
+      tipo: dto.tipo,
+      alternativas: dto.alternativas,
+      gabarito: GabaritoHttpMapper.toDomain(dto.gabarito),
+      disciplina: dto.disciplina,
+      assunto: dto.assunto,
+      textoApoio: dto.textoApoio,
+    });
 
     return QuestaoPresenter.toHTTP(questao);
   }

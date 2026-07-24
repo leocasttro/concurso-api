@@ -15,6 +15,7 @@ import {
 } from '../../../domain/value-objects/gabarito.vo';
 import { StatusQuestaoValor } from '../../../domain/value-objects/status-questao.vo';
 import { Alternativa } from '../../../domain/entities/alternativa.entity';
+import { AtualizarQuestaoUseCase } from '../../../application/use-cases/atualizar-questao.use-case';
 
 describe('QuestoesController', () => {
   let controller: QuestoesController;
@@ -36,6 +37,9 @@ describe('QuestoesController', () => {
     EnviarQuestaoParaRevisaoUseCase['execute']
   >;
   let anularQuestaoMock: jest.MockedFunction<AnularQuestaoUseCase['execute']>;
+  let atualizarQuestaoMock: jest.MockedFunction<
+    AtualizarQuestaoUseCase['execute']
+  >;
 
   beforeEach(() => {
     criarExecuteMock = jest.fn();
@@ -45,6 +49,7 @@ describe('QuestoesController', () => {
     publicarQuestaoMock = jest.fn();
     enviarParaRevisaoMock = jest.fn();
     anularQuestaoMock = jest.fn();
+    atualizarQuestaoMock = jest.fn();
 
     controller = new QuestoesController(
       { execute: criarExecuteMock } as unknown as CriarQuestaoUseCase,
@@ -58,6 +63,7 @@ describe('QuestoesController', () => {
         execute: enviarParaRevisaoMock,
       } as unknown as EnviarQuestaoParaRevisaoUseCase,
       { execute: anularQuestaoMock } as unknown as AnularQuestaoUseCase,
+      { execute: atualizarQuestaoMock } as unknown as AtualizarQuestaoUseCase,
     );
   });
 
@@ -308,6 +314,75 @@ describe('QuestoesController', () => {
     const resultado = await controller.anular(questao.id);
 
     expect(anularQuestaoMock).toHaveBeenCalledWith({ id: questao.id });
+    expect(resultado.id).toBe(questao.id);
+  });
+
+  it('deve atualizar questão', async () => {
+    const questao = Questao.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      provaId: '550e8400-e29b-41d4-a716-446655440999',
+      numero: 2,
+      enunciado: 'Enunciado atualizado',
+      tipo: TipoQuestaoValor.CERTO_ERRADO,
+      status: StatusQuestaoValor.PENDENTE_REVISAO,
+      alternativas: [
+        Alternativa.reconstituir({
+          id: '550e8400-e29b-41d4-a716-446655440001',
+          texto: 'Certo',
+          letra: 'C',
+        }),
+        Alternativa.reconstituir({
+          id: '550e8400-e29b-41d4-a716-446655440002',
+          texto: 'Errado',
+          letra: 'E',
+        }),
+      ],
+      gabarito: Gabarito.certoErrado(GabaritoCertoErradoValor.CERTO),
+      disciplina: 'Direito Constitucional',
+      assunto: 'Constituição',
+      textoApoio: 'Texto de apoio',
+      createdAt: new Date('2024-01-01T00:00:00.000Z'),
+    });
+
+    atualizarQuestaoMock.mockResolvedValue(questao);
+
+    const resultado = await controller.atualizar(questao.id, {
+      numero: 2,
+      enunciado: 'Enunciado atualizado',
+      tipo: TipoQuestaoValor.CERTO_ERRADO,
+      alternativas: [
+        { texto: 'Certo', letra: 'C' },
+        { texto: 'Errado', letra: 'E' },
+      ],
+      gabarito: {
+        tipo: TipoGabaritoValor.CERTO_ERRADO,
+        valores: ['CERTO'],
+      },
+      disciplina: 'Direito Constitucional',
+      assunto: 'Constituição',
+      textoApoio: 'Texto de apoio',
+    });
+
+    expect(atualizarQuestaoMock).toHaveBeenCalledTimes(1);
+
+    const input = atualizarQuestaoMock.mock.calls[0][0];
+
+    expect(input).toMatchObject({
+      id: questao.id,
+      numero: 2,
+      enunciado: 'Enunciado atualizado',
+      tipo: TipoQuestaoValor.CERTO_ERRADO,
+      alternativas: [
+        { texto: 'Certo', letra: 'C' },
+        { texto: 'Errado', letra: 'E' },
+      ],
+      disciplina: 'Direito Constitucional',
+      assunto: 'Constituição',
+      textoApoio: 'Texto de apoio',
+    });
+
+    expect(input.gabarito?.tipo).toBe(TipoGabaritoValor.CERTO_ERRADO);
+    expect(input.gabarito?.valores).toEqual(['CERTO']);
     expect(resultado.id).toBe(questao.id);
   });
 });

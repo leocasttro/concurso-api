@@ -153,6 +153,35 @@ export class Questao extends AggregateRoot<string> {
     );
   }
 
+  atualizar(input: {
+    numero?: number;
+    enunciado: string;
+    tipo: TipoQuestaoValor;
+    alternativas?: Array<{
+      texto: string;
+      letra?: string;
+    }>;
+    gabarito?: Gabarito;
+    disciplina?: string;
+    assunto?: string;
+    textoApoio?: string;
+  }): void {
+    if (!input.enunciado?.trim()) {
+      throw new QuestaoException('Enunciado da questão é obrigatório.');
+    }
+
+    this.numero = input.numero;
+    this.enunciado = input.enunciado.trim();
+    this.tipo = TipoQuestao.criar(input.tipo);
+    this.alternativas = (input.alternativas ?? []).map((alternativa) =>
+      Alternativa.criar(alternativa),
+    );
+    this.gabarito = input.gabarito;
+    this.disciplina = input.disciplina?.trim();
+    this.assunto = input.assunto?.trim();
+    this.textoApoio = input.textoApoio?.trim();
+  }
+
   publicar(): void {
     this.validarPublicacao();
     this.status = StatusQuestao.criar(StatusQuestaoValor.PUBLICADA);
