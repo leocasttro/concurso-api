@@ -13,6 +13,7 @@ import { QuestaoOrmEntity } from './infra/persistence/entities/questao.orm-entit
 import { TypeOrmQuestaoRepository } from './infra/persistence/repositories/typeorm-questao.repository';
 import { QuestoesController } from './presentation/controllers/questoes.controller';
 import { AtualizarQuestaoUseCase } from './application/use-cases/atualizar-questao.use-case';
+import { RemoverQuestaoUseCase } from './application/use-cases/remover-questao.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([QuestaoOrmEntity, AlternativaOrmEntity])],
@@ -26,6 +27,7 @@ import { AtualizarQuestaoUseCase } from './application/use-cases/atualizar-quest
     EnviarQuestaoParaRevisaoUseCase,
     AnularQuestaoUseCase,
     AtualizarQuestaoUseCase,
+    RemoverQuestaoUseCase,
     {
       provide: QUESTAO_REPOSITORY,
       useClass: TypeOrmQuestaoRepository,

@@ -10,7 +10,7 @@ import { TypeOrmQuestaoRepository } from '../../../../infra/persistence/reposito
 describe('TypeormQuestaoRepository', () => {
   let repository: TypeOrmQuestaoRepository;
   let typeOrmRepository: jest.Mocked<
-    Pick<Repository<QuestaoOrmEntity>, 'save' | 'find' | 'findOne'>
+    Pick<Repository<QuestaoOrmEntity>, 'save' | 'find' | 'findOne' | 'delete'>
   >;
 
   beforeEach(() => {
@@ -18,6 +18,7 @@ describe('TypeormQuestaoRepository', () => {
       save: jest.fn(),
       find: jest.fn(),
       findOne: jest.fn(),
+      delete: jest.fn(),
     };
 
     repository = new TypeOrmQuestaoRepository(
@@ -135,5 +136,18 @@ describe('TypeormQuestaoRepository', () => {
       where: { id },
     });
     expect(resultado).toBeNull();
+  });
+
+  it('deve remover uma questão por id', async () => {
+    const id = '550e8400-e29b-41d4-a716-446655440000';
+
+    typeOrmRepository.delete.mockResolvedValue({
+      raw: [],
+      affected: 1,
+    });
+
+    await repository.remover(id);
+
+    expect(typeOrmRepository.delete).toHaveBeenCalledWith(id);
   });
 });

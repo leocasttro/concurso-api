@@ -6,4 +6,5 @@ export interface QuestaoRepository {
   salvar(questao: Questao): Promise<Questao>;
   listarPorProvaId(provaId: string): Promise<Questao[]>;
   buscarPorId(id: string): Promise<Questao | null>;
+  remover(id: string): Promise<void>;
 }

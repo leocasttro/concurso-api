@@ -16,6 +16,7 @@ import {
 import { StatusQuestaoValor } from '../../../domain/value-objects/status-questao.vo';
 import { Alternativa } from '../../../domain/entities/alternativa.entity';
 import { AtualizarQuestaoUseCase } from '../../../application/use-cases/atualizar-questao.use-case';
+import { RemoverQuestaoUseCase } from '../../../application/use-cases/remover-questao.use-case';
 
 describe('QuestoesController', () => {
   let controller: QuestoesController;
@@ -40,6 +41,7 @@ describe('QuestoesController', () => {
   let atualizarQuestaoMock: jest.MockedFunction<
     AtualizarQuestaoUseCase['execute']
   >;
+  let removerQuestaoMock: jest.MockedFunction<RemoverQuestaoUseCase['execute']>;
 
   beforeEach(() => {
     criarExecuteMock = jest.fn();
@@ -50,6 +52,7 @@ describe('QuestoesController', () => {
     enviarParaRevisaoMock = jest.fn();
     anularQuestaoMock = jest.fn();
     atualizarQuestaoMock = jest.fn();
+    removerQuestaoMock = jest.fn();
 
     controller = new QuestoesController(
       { execute: criarExecuteMock } as unknown as CriarQuestaoUseCase,
@@ -64,6 +67,7 @@ describe('QuestoesController', () => {
       } as unknown as EnviarQuestaoParaRevisaoUseCase,
       { execute: anularQuestaoMock } as unknown as AnularQuestaoUseCase,
       { execute: atualizarQuestaoMock } as unknown as AtualizarQuestaoUseCase,
+      { execute: removerQuestaoMock } as unknown as RemoverQuestaoUseCase,
     );
   });
 
@@ -384,5 +388,15 @@ describe('QuestoesController', () => {
     expect(input.gabarito?.tipo).toBe(TipoGabaritoValor.CERTO_ERRADO);
     expect(input.gabarito?.valores).toEqual(['CERTO']);
     expect(resultado.id).toBe(questao.id);
+  });
+
+  it('deve remover questão', async () => {
+    const id = '550e8400-e29b-41d4-a716-446655440000';
+
+    removerQuestaoMock.mockResolvedValue();
+
+    await controller.remover(id);
+
+    expect(removerQuestaoMock).toHaveBeenCalledWith({ id });
   });
 });
