@@ -184,11 +184,18 @@ class QuestionParser:
         if not numero:
             return None
 
-        for texto_apoio in textos_apoio:
-            if texto_apoio.inicio <= numero <= texto_apoio.fim:
-                return texto_apoio.texto
+        candidatos = [
+            texto_apoio
+            for texto_apoio in textos_apoio
+            if texto_apoio.inicio <= numero <= texto_apoio.fim
+        ]
 
-        return None
+        if not candidatos:
+            return None
+
+        melhor = max(candidatos, key=lambda texto_apoio: texto_apoio.confianca)
+
+        return melhor.texto
 
 
     def _extrair_numero(self, bloco: str) -> int | None:
