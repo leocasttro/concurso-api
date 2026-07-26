@@ -123,25 +123,77 @@ class PdfTextExtractor:
         documento = fitz.open(stream=conteudo_arquivo, filetype="pdf")
 
         try:
-            texto_paginas: list[str] = []
+            textos_paginas: list[str] = []
 
             for pagina in documento:
                 pixmap = pagina.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
                 imagem_bytes = pixmap.tobytes("png")
-
                 imagem = Image.open(io.BytesIO(imagem_bytes))
 
-                texto = pytesseract.image_to_string(
-                    imagem,
-                    lang="por",
-                    config="--psm 6",
-                )
+                texto_pagina = self._extrair_texto_ocr_adaptativo(imagem)
 
-                texto_limpo = texto.strip()
+                if texto_pagina:
+                    textos_paginas.append(texto_pagina)
 
-                if texto_limpo:
-                    texto_paginas.append(texto_limpo)
-
-            return "\n".join(texto_paginas).strip()
+            return "\n".join(textos_paginas).strip()
         finally:
             documento.close()
+
+    def _extrair_texto_ocr_por_colunas(self, imagem: Image.Image) -> list[str]:
+        largura, altura = imagem.size
+        meio = largura // 2
+        sobreposicao = 20
+
+        recortes = [
+            imagem.crop((0, 0, meio + sobreposicao, altura)),
+            imagem.crop((meio - sobreposicao, 0, largura, altura)),
+        ]
+
+        textos: list[str] = []
+
+        for recorte in recortes:
+            texto = pytesseract.image_to_string(
+                recorte,
+                lang="por",
+                config="--psm 6",
+            ).strip()
+
+            if texto:
+                textos.append(texto)
+
+        return textos
+
+    def _extrair_texto_ocr_adaptativo(self, imagem: Image.Image) -> str:
+        texto_pagina_inteira = pytesseract.image_to_string(
+            imagem,
+            lang="por",
+            config="--psm 6",
+        ).strip()
+
+        if not self._parece_pagina_de_questoes(texto_pagina_inteira):
+            return texto_pagina_inteira
+
+        textos_colunas = self._extrair_texto_ocr_por_colunas(imagem)
+
+        return "\n".join(textos_colunas).strip()
+
+    def _parece_pagina_de_questoes(self, texto: str) -> bool:
+        texto_normalizado = texto.lower()
+
+        if "questão" in texto_normalizado or "questao" in texto_normalizado:
+            return True
+
+        alternativas = re.findall(
+            r"(?:^|\s)\(?[A-Ea-e]\)?[).]\s+",
+            texto,
+        )
+
+        if len(alternativas) >= 4:
+            return True
+
+        numeros_de_questao = re.findall(
+            r"(?im)^\s*(?:quest[ãa]o\s*)?\d{1,3}\s*[-.)]\s+",
+            texto,
+        )
+
+        return len(numeros_de_questao) >= 2

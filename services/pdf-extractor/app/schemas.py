@@ -46,8 +46,16 @@ class MetadadosExtracaoResponse(BaseModel):
     total_erros: int
 
 
+class QualidadeExtracaoResponse(BaseModel):
+    percentual_confianca: float
+    questoes_confiaveis: int
+    questoes_para_revisao: int
+    problemas: list[str]
+
+
 class QuestoesExtraidasResponse(BaseModel):
     metadados: MetadadosExtracaoResponse
+    qualidade: QualidadeExtracaoResponse
     questoes: list[QuestaoResponse]
     avisos: list[str]
     erros: list[str]

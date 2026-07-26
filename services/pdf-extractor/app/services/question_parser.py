@@ -3,11 +3,10 @@ import re
 from app.schemas import (
     AlternativaResponse,
     MetadadosExtracaoResponse,
+    QualidadeExtracaoResponse,
     QuestaoResponse,
     QuestoesExtraidasResponse,
 )
-
-
 from app.services.text_support_detector import (
     TextSupportDetector,
     TextoApoioDetectado,
@@ -34,6 +33,12 @@ class QuestionParser:
                     total_avisos=0,
                     total_erros=len(erros),
                 ),
+                qualidade=QualidadeExtracaoResponse(
+                    percentual_confianca=0,
+                    questoes_confiaveis=0,
+                    questoes_para_revisao=0,
+                    problemas=erros,
+                ),
                 questoes=[],
                 avisos=[],
                 erros=erros,
@@ -54,6 +59,12 @@ class QuestionParser:
                     total_avisos=0,
                     total_erros=len(erros),
                 ),
+                qualidade=QualidadeExtracaoResponse(
+                    percentual_confianca=0,
+                    questoes_confiaveis=0,
+                    questoes_para_revisao=0,
+                    problemas=erros,
+                ),
                 questoes=[],
                 avisos=[],
                 erros=erros,
@@ -73,6 +84,30 @@ class QuestionParser:
             for aviso in questao.avisos
         ]
 
+        questoes_confiaveis = [
+            questao
+            for questao in questoes
+            if not questao.precisa_revisao
+        ]
+
+        questoes_para_revisao = [
+            questao
+            for questao in questoes
+            if questao.precisa_revisao
+        ]
+
+        percentual_confianca = (
+            sum(questao.confianca for questao in questoes) / len(questoes) * 100
+            if questoes
+            else 0
+        )
+
+        problemas = [
+            aviso
+            for questao in questoes_para_revisao
+            for aviso in questao.avisos
+        ]
+
         return QuestoesExtraidasResponse(
             metadados=MetadadosExtracaoResponse(
                 nome_arquivo=nome_arquivo,
@@ -80,6 +115,12 @@ class QuestionParser:
                 total_questoes=len(questoes),
                 total_avisos=len(avisos),
                 total_erros=0,
+            ),
+            qualidade=QualidadeExtracaoResponse(
+                percentual_confianca=round(percentual_confianca, 2),
+                questoes_confiaveis=len(questoes_confiaveis),
+                questoes_para_revisao=len(questoes_para_revisao),
+                problemas=problemas,
             ),
             questoes=questoes,
             avisos=avisos,
@@ -92,22 +133,63 @@ class QuestionParser:
         )
 
         matches = list(regex_questao.finditer(texto))
-        matches_validos = self._filtrar_matches_por_sequencia(matches)
+
+        blocos_permissivos = self._montar_blocos_por_matches(
+            texto=texto,
+            matches=self._filtrar_matches_por_sequencia(matches),
+            aplicar_filtro_questao=False,
+        )
+
+        if self._resultado_parece_bom(blocos_permissivos):
+            return [bloco for _, bloco in blocos_permissivos]
+
+        blocos_filtrados = self._montar_blocos_por_matches(
+            texto=texto,
+            matches=matches,
+            aplicar_filtro_questao=True,
+        )
+
+        return self._filtrar_blocos_por_sequencia(blocos_filtrados)
+
+    def _resultado_parece_bom(self, blocos: list[tuple[int, str]]) -> bool:
+        if len(blocos) >= 10:
+            return True
+
+        if not blocos:
+            return False
+
+        primeiro_numero, primeiro_bloco = blocos[0]
+
+        if primeiro_numero != 1:
+            return False
+
+        return self._parece_bloco_de_questao(primeiro_bloco)
+
+
+    def _filtrar_blocos_por_sequencia(
+            self,
+            blocos_candidatos: list[tuple[int, str]],
+    ) -> list[str]:
+        if not blocos_candidatos:
+            return []
 
         blocos: list[str] = []
+        ultimo_numero: int | None = None
 
-        for index, match in enumerate(matches_validos):
-            inicio = match.start()
-            fim = (
-                matches_validos[index + 1].start()
-                if index + 1 < len(matches_validos)
-                else len(texto)
-            )
-
-            bloco = texto[inicio:fim].strip()
-
-            if bloco:
+        for numero, bloco in blocos_candidatos:
+            if ultimo_numero is None:
                 blocos.append(bloco)
+                ultimo_numero = numero
+                continue
+
+            if numero == ultimo_numero + 1:
+                blocos.append(bloco)
+                ultimo_numero = numero
+                continue
+
+            if numero > ultimo_numero:
+                blocos.append(bloco)
+                ultimo_numero = numero
 
         return blocos
 
@@ -356,3 +438,68 @@ class QuestionParser:
             "",
             linha,
         ).strip()
+
+    def _parece_bloco_de_questao(self, bloco: str) -> bool:
+        texto_normalizado = bloco.lower()
+
+        termos_instrucao = [
+            "caderno de provas",
+            "cartão-resposta",
+            "cartão de respostas",
+            "folha de texto definitivo",
+            "fiscal de sala",
+            "não serão aceitas reclamações",
+            "duração total",
+            "permaneça obrigatoriamente",
+            "não se comunique",
+            "ao terminar a prova",
+            "gabarito preliminar",
+        ]
+
+        if any(termo in texto_normalizado for termo in termos_instrucao):
+            return False
+
+        if self._extrair_alternativas(bloco):
+            return True
+
+        comandos_de_questao = [
+            "assinale",
+            "é correto afirmar",
+            "está correto",
+            "pode-se afirmar",
+            "analise as afirmativas",
+            "julgue",
+            "considere",
+            "sobre",
+        ]
+
+        return any(comando in texto_normalizado for comando in comandos_de_questao)
+
+    def _montar_blocos_por_matches(
+            self,
+            texto: str,
+            matches: list[re.Match],
+            aplicar_filtro_questao: bool,
+    ) -> list[tuple[int, str]]:
+        blocos: list[tuple[int, str]] = []
+
+        for index, match in enumerate(matches):
+            inicio = match.start()
+            fim = (
+                matches[index + 1].start()
+                if index + 1 < len(matches)
+                else len(texto)
+            )
+
+            bloco = texto[inicio:fim].strip()
+            numero = int(match.group(1))
+
+            if not bloco:
+                continue
+
+            if aplicar_filtro_questao and not self._parece_bloco_de_questao(bloco):
+                continue
+
+            blocos.append((numero, bloco))
+
+        return blocos
