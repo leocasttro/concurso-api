@@ -1,45 +1,37 @@
 import { ImportarProvaPdfPreviewUseCase } from '../../../application/use-cases/importar-prova-pdf-preview.use-case';
-import type { PdfTextExtractor } from '../../../application/services/pdf-text-extractor';
-import type { ProvaImportadaParser } from '../../../application/services/prova-importada-parser';
 import { ImportacaoProva } from '../../../domain/entities/importacao-prova.entity';
 import { QuestaoImportada } from '../../../domain/entities/questao-importada.entity';
 import type { ImportacaoProvaRepository } from '../../../domain/repositories/importacao-prova.repository';
 import { StatusImportacaoValor } from '../../../domain/value-objects/status-importacao.vo';
 import { TipoQuestaoValor } from '../../../../questoes/domain/value-objects/tipo-questao.vo';
+import type { ExtratorProvaPdf } from '../../../application/services/extrator-prova-pdf';
 
 describe('ImportarProvaPdfPreviewUseCase', () => {
   let useCase: ImportarProvaPdfPreviewUseCase;
 
   let importacaoRepository: ImportacaoProvaRepository;
-  let pdfTextExtractor: PdfTextExtractor;
-  let provaImportadaParser: ProvaImportadaParser;
+
+  let extratorProvaPdf: ExtratorProvaPdf;
+  let extrairMock: jest.MockedFunction<ExtratorProvaPdf['extrair']>;
 
   let salvarMock: jest.MockedFunction<ImportacaoProvaRepository['salvar']>;
-  let extractMock: jest.MockedFunction<PdfTextExtractor['extract']>;
-  let parseMock: jest.MockedFunction<ProvaImportadaParser['parse']>;
 
   beforeEach(() => {
     salvarMock = jest.fn();
-    extractMock = jest.fn();
-    parseMock = jest.fn();
+    extrairMock = jest.fn();
 
     importacaoRepository = {
       salvar: salvarMock,
       buscarPorId: jest.fn(),
     };
 
-    pdfTextExtractor = {
-      extract: extractMock,
-    };
-
-    provaImportadaParser = {
-      parse: parseMock,
+    extratorProvaPdf = {
+      extrair: extrairMock,
     };
 
     useCase = new ImportarProvaPdfPreviewUseCase(
       importacaoRepository,
-      pdfTextExtractor,
-      provaImportadaParser,
+      extratorProvaPdf,
     );
   });
 
@@ -54,12 +46,12 @@ describe('ImportarProvaPdfPreviewUseCase', () => {
       precisaRevisao: false,
     });
 
-    extractMock.mockResolvedValue('texto extraído do pdf');
-    parseMock.mockResolvedValue({
+    extrairMock.mockResolvedValue({
       questoes: [questao],
       avisos: [],
       erros: [],
     });
+
     salvarMock.mockImplementation((importacao) => Promise.resolve(importacao));
 
     const resultado = await useCase.execute({
@@ -68,11 +60,10 @@ describe('ImportarProvaPdfPreviewUseCase', () => {
       fileBuffer,
     });
 
-    expect(extractMock).toHaveBeenCalledWith({
+    expect(extrairMock).toHaveBeenCalledWith({
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
       fileBuffer,
-    });
-    expect(parseMock).toHaveBeenCalledWith({
-      texto: 'texto extraído do pdf',
     });
     expect(salvarMock).toHaveBeenCalledTimes(1);
     expect(salvarMock).toHaveBeenCalledWith(resultado);
@@ -95,8 +86,7 @@ describe('ImportarProvaPdfPreviewUseCase', () => {
       precisaRevisao: false,
     });
 
-    extractMock.mockResolvedValue('texto extraído do pdf');
-    parseMock.mockResolvedValue({
+    extrairMock.mockResolvedValue({
       questoes: [questao],
       avisos: ['Questão sem gabarito detectado.'],
       erros: [],
@@ -116,8 +106,7 @@ describe('ImportarProvaPdfPreviewUseCase', () => {
   });
 
   it('deve salvar preview como falhou quando parser retornar erro e nenhuma questão', async () => {
-    extractMock.mockResolvedValue('');
-    parseMock.mockResolvedValue({
+    extrairMock.mockResolvedValue({
       questoes: [],
       avisos: [],
       erros: ['Não foi possível identificar questões.'],

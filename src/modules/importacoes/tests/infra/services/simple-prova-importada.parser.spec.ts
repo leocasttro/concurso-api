@@ -32,7 +32,7 @@ describe('SimpleProvaImportadaParser', () => {
 
   it('deve extrair uma questão com alternativas', async () => {
     const texto = `
-      QUESTÃO 1
+      QUESTÃO 1 -
       Qual alternativa está correta?
       A) Primeira alternativa
       B) Segunda alternativa
@@ -70,12 +70,12 @@ describe('SimpleProvaImportadaParser', () => {
 
   it('deve extrair múltiplas questões', async () => {
     const texto = `
-      QUESTÃO 1
+      QUESTÃO 1 -
       Texto da primeira questão.
       A) Alternativa A
       B) Alternativa B
       
-      Questão 2
+      Questão 2 -
       Texto da segunda questão.
       A) Alternativa A
       B) Alternativa B
@@ -93,7 +93,7 @@ describe('SimpleProvaImportadaParser', () => {
 
   it('deve sugerir CERTO_ERRADO quando a questão não tiver alternativas', async () => {
     const texto = `
-      QUESTÃO 10
+      QUESTÃO 10 -
       A Constituição Federal de 1988 é rígida.
       `;
 
@@ -112,7 +112,7 @@ describe('SimpleProvaImportadaParser', () => {
 
   it('deve aceitar QUESTAO sem acento', async () => {
     const texto = `
-      QUESTAO 3
+      QUESTAO 3 -
       Texto da questão sem acento.
       A) Alternativa A
       B) Alternativa B
@@ -130,7 +130,7 @@ describe('SimpleProvaImportadaParser', () => {
 
   it('deve aceitar alternativas com ponto', async () => {
     const texto = `
-      QUESTÃO 4
+      QUESTÃO 4 -
       Texto da questão.
       A. Alternativa A
       B. Alternativa B
