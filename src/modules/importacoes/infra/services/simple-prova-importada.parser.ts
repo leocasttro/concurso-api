@@ -65,7 +65,8 @@ export class SimpleProvaImportadaParser implements ProvaImportadaParser {
       letra?: string;
     }>;
   }> {
-    const regexQuestao = /(?:QUEST[ÃA]O|Quest[ãa]o)\s+(\d+)/g;
+    const regexQuestao =
+      /(?:^|\n)\s*(?:(?:QUEST[ÃA]O|Quest[ãa]o)\s*)?(\d{1,3})\s*[-.)]\s+/g;
     const matches = [...texto.matchAll(regexQuestao)];
 
     return matches
@@ -92,7 +93,7 @@ export class SimpleProvaImportadaParser implements ProvaImportadaParser {
 
     const linhasSemTitulo = linhas.slice(1);
     const indicePrimeiraAlternativa = linhasSemTitulo.findIndex((linha) =>
-      /^[A-E][).]\s+/.test(linha),
+      /^[A-Ea-e][).]\s+/.test(linha),
     );
 
     if (indicePrimeiraAlternativa === -1) {
@@ -113,14 +114,14 @@ export class SimpleProvaImportadaParser implements ProvaImportadaParser {
 
     return linhas
       .map((linha) => {
-        const match = linha.match(/^([A-E])[).]\s+(.+)$/);
+        const match = linha.match(/^([A-Ea-e])[).]\s+(.+)$/);
 
         if (!match) {
           return undefined;
         }
 
         return {
-          letra: match[1],
+          letra: match[1].toUpperCase(),
           texto: match[2].trim(),
         };
       })

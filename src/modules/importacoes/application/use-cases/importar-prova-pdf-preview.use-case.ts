@@ -2,11 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ImportacaoProva } from '../../domain/entities/importacao-prova.entity';
 import { IMPORTACAO_PROVA_REPOSITORY } from '../../domain/repositories/importacao-prova.repository';
 import type { ImportacaoProvaRepository } from '../../domain/repositories/importacao-prova.repository';
-import type { PdfTextExtractor } from '../services/pdf-text-extractor';
-import type { ProvaImportadaParser } from '../services/prova-importada-parser';
+import type { ExtratorProvaPdf } from '../services/extrator-prova-pdf';
 
-export const PDF_TEXT_EXTRACTOR = Symbol('PDF_TEXT_EXTRACTOR');
-export const PROVA_IMPORTADA_PARSER = Symbol('PROVA_IMPORTADA_PARSER');
+export const EXTRATOR_PROVA_PDF = Symbol('EXTRATOR_PROVA_PDF');
 
 export type ImportarProvaPdfPreviewInput = {
   nomeArquivo: string;
@@ -20,11 +18,8 @@ export class ImportarProvaPdfPreviewUseCase {
     @Inject(IMPORTACAO_PROVA_REPOSITORY)
     private readonly importacaoRepository: ImportacaoProvaRepository,
 
-    @Inject(PDF_TEXT_EXTRACTOR)
-    private readonly pdfTextExtractor: PdfTextExtractor,
-
-    @Inject(PROVA_IMPORTADA_PARSER)
-    private readonly provaImportadaParser: ProvaImportadaParser,
+    @Inject(EXTRATOR_PROVA_PDF)
+    private readonly extratorProvaPdf: ExtratorProvaPdf,
   ) {}
 
   async execute(input: ImportarProvaPdfPreviewInput): Promise<ImportacaoProva> {
@@ -35,12 +30,10 @@ export class ImportarProvaPdfPreviewUseCase {
 
     importacao.iniciarProcessamento();
 
-    const texto = await this.pdfTextExtractor.extract({
+    const resultadoParser = await this.extratorProvaPdf.extrair({
+      nomeArquivo: input.nomeArquivo,
+      tipoArquivo: input.tipoArquivo,
       fileBuffer: input.fileBuffer,
-    });
-
-    const resultadoParser = await this.provaImportadaParser.parse({
-      texto,
     });
 
     resultadoParser.questoes.forEach((questao) => {
