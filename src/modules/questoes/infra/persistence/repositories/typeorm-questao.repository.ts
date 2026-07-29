@@ -40,4 +40,8 @@ export class TypeOrmQuestaoRepository implements QuestaoRepository {
 
     return entity ? QuestaoMapper.toDomain(entity) : null;
   }
+
+  async remover(id: string): Promise<void> {
+    await this.repository.delete(id);
+  }
 }
