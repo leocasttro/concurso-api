@@ -42,7 +42,20 @@ describe('ImportacaoProvaPresenter', () => {
       updateAt: updatedAt,
     });
 
-    const resultado = ImportacaoProvaPresenter.toHTTP(importacao);
+    const itensRevisao = [
+      {
+        questaoId: questao.id,
+        numero: 1,
+        campo: 'alternativas' as const,
+        problema: 'Questão possui apenas 1 alternativa.',
+        valorAtual: 'A: Alternativa A',
+      },
+    ];
+
+    const resultado = ImportacaoProvaPresenter.toHTTP(
+      importacao,
+      itensRevisao,
+    );
 
     expect(resultado).toEqual({
       id: '550e8400-e29b-41d4-a716-446655440000',
@@ -73,6 +86,10 @@ describe('ImportacaoProvaPresenter', () => {
       ],
       erros: [],
       avisos: ['Questão 1 precisa de revisão.'],
+      revisao: {
+        totalPendencias: 1,
+        itens: itensRevisao,
+      },
       createdAt,
       updatedAt,
     });
@@ -96,6 +113,10 @@ describe('ImportacaoProvaPresenter', () => {
 
     expect(resultado.questoes).toEqual([]);
     expect(resultado.erros).toEqual(['Não foi possível extrair questões.']);
+    expect(resultado.revisao).toEqual({
+      totalPendencias: 0,
+      itens: [],
+    });
     expect(resultado.status).toBe(StatusImportacaoValor.FALHOU);
   });
 });

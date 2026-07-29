@@ -1,6 +1,7 @@
 import { ImportacaoProva } from '../../domain/entities/importacao-prova.entity';
 import { StatusImportacaoValor } from '../../domain/value-objects/status-importacao.vo';
 import { TipoQuestaoValor } from '../../../questoes/domain/value-objects/tipo-questao.vo';
+import { RevisaoImportacaoItem } from '../../application/services/importacao-prova-review-analyzer';
 
 export type ImportacaoProvaHttpResponse = {
   id: string;
@@ -30,12 +31,19 @@ export type ImportacaoProvaHttpResponse = {
   }>;
   erros: string[];
   avisos: string[];
+  revisao: {
+    totalPendencias: number;
+    itens: RevisaoImportacaoItem[];
+  };
   createdAt: Date;
   updatedAt?: Date;
 };
 
 export class ImportacaoProvaPresenter {
-  static toHTTP(importacao: ImportacaoProva): ImportacaoProvaHttpResponse {
+  static toHTTP(
+    importacao: ImportacaoProva,
+    itensRevisao: RevisaoImportacaoItem[] = [],
+  ): ImportacaoProvaHttpResponse {
     return {
       id: importacao.id,
       nomeArquivo: importacao.nomeArquivo,
@@ -58,6 +66,10 @@ export class ImportacaoProvaPresenter {
       })),
       erros: importacao.erros,
       avisos: importacao.avisos,
+      revisao: {
+        totalPendencias: itensRevisao.length,
+        itens: itensRevisao,
+      },
       createdAt: importacao.createdAt,
       updatedAt: importacao.updatedAt,
     };
