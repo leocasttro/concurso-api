@@ -33,5 +33,6 @@ import { RemoverQuestaoUseCase } from './application/use-cases/remover-questao.u
       useClass: TypeOrmQuestaoRepository,
     },
   ],
+  exports: [ImportarQuestaoUseCase],
 })
 export class QuestoesModule {}

@@ -24,5 +24,6 @@ import { RemoverProvaUseCase } from './application/use-cases/remover-prova.use-c
       useClass: TypeOrmProvaRepository,
     },
   ],
+  exports: [CriarProvaUseCase],
 })
 export class ProvasModule {}
