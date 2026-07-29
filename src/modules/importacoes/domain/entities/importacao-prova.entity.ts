@@ -6,6 +6,7 @@ import {
 import { QuestaoImportada } from './questao-importada.entity';
 import { ImportacaoException } from '../exceptions/importacao.exception';
 import { randomUUID } from 'node:crypto';
+import { TipoQuestaoValor } from '../../../questoes/domain/value-objects/tipo-questao.vo';
 
 export class ImportacaoProva extends AggregateRoot<string> {
   private constructor(
@@ -76,6 +77,42 @@ export class ImportacaoProva extends AggregateRoot<string> {
 
   adicionarQuestao(questao: QuestaoImportada): void {
     this.questoes.push(questao);
+  }
+
+  atualizarQuestaoImportada(
+    questaoId: string,
+    input: {
+      enunciado?: string;
+      tipoSugerido?: TipoQuestaoValor;
+      alternativas?: Array<{
+        texto: string;
+        letra?: string;
+      }>;
+      gabarito?: {
+        tipo: string;
+        valores: string[];
+      };
+      disciplina?: string;
+      assunto?: string;
+      textoApoio?: string;
+      precisaRevisao?: boolean;
+    },
+  ): QuestaoImportada {
+    if (this.status.valor === StatusImportacaoValor.CONCLUIDA) {
+      throw new ImportacaoException(
+        'Importação concluída não pode ser alterada.',
+      );
+    }
+
+    const questao = this.questoes.find((item) => item.id === questaoId);
+
+    if (!questao) {
+      throw new ImportacaoException('Questão importada não encontrada.');
+    }
+
+    questao.atualizar(input);
+
+    return questao;
   }
 
   adicionarErro(erro: string): void {

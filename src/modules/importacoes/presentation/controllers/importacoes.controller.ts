@@ -4,6 +4,7 @@ import {
   Controller,
   Inject,
   Param,
+  Patch,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -16,6 +17,9 @@ import { ConfirmarImportacaoProvaUseCase } from '../../application/use-cases/con
 import { ConfirmarImportacaoProvaDto } from '../../application/dtos/confirmar-importacao-prova.dto';
 import { ConfirmacaoImportacaoPresenter } from '../presenters/confirmacao-importacao.presenter';
 import { UuidValidationPipe } from '../../../../shared/presentation/pipes/uuid-validation.pipe';
+import { AtualizarQuestaoImportadaUseCase } from '../../application/use-cases/atualizar-questao-importada.use-case';
+import { AtualizarQuestaoImportadaDto } from '../../application/dtos/atualizar-questao-importada.dto';
+import { QuestaoImportadaPresenter } from '../presenters/questao-importada.presenter';
 import {
   IMPORTACAO_PROVA_REVIEW_ANALYZER,
   type ImportacaoProvaReviewAnalyzer,
@@ -32,6 +36,7 @@ export class ImportacoesController {
   constructor(
     private readonly importarProvaPdfPreviewUseCase: ImportarProvaPdfPreviewUseCase,
     private readonly confirmarImportacaoProvaUseCase: ConfirmarImportacaoProvaUseCase,
+    private readonly atualizarQuestaoImportadaUseCase: AtualizarQuestaoImportadaUseCase,
 
     @Inject(IMPORTACAO_PROVA_REVIEW_ANALYZER)
     private readonly reviewAnalyzer: ImportacaoProvaReviewAnalyzer,
@@ -74,5 +79,27 @@ export class ImportacoesController {
     });
 
     return ConfirmacaoImportacaoPresenter.toHTTP(resultado);
+  }
+
+  @Patch(':importacaoId/questoes/:questaoId')
+  async atualizarQuestaoImportada(
+    @Param('importacaoId', UuidValidationPipe) importacaoId: string,
+    @Param('questaoId', UuidValidationPipe) questaoId: string,
+    @Body() dto: AtualizarQuestaoImportadaDto,
+  ) {
+    const questao = await this.atualizarQuestaoImportadaUseCase.execute({
+      importacaoId,
+      questaoId,
+      enunciado: dto.enunciado,
+      tipoSugerido: dto.tipoSugerido,
+      alternativas: dto.alternativas,
+      gabarito: dto.gabarito,
+      disciplina: dto.disciplina,
+      assunto: dto.assunto,
+      textoApoio: dto.textoApoio,
+      precisaRevisao: dto.precisaRevisao,
+    });
+
+    return QuestaoImportadaPresenter.toHTTP(questao);
   }
 }
