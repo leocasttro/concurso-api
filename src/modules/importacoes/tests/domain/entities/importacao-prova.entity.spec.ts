@@ -220,4 +220,100 @@ describe('ImportacaoProva', () => {
       new ImportacaoException('Importação já foi confirmada.'),
     );
   });
+
+  it('deve atualizar questão importada enquanto importação não estiver concluída', () => {
+    const questao = QuestaoImportada.criar({
+      numero: 1,
+      enunciado: 'Questão importada original',
+      tipoSugerido: TipoQuestaoValor.CERTO_ERRADO,
+      alternativas: [],
+      confianca: 0.65,
+      precisaRevisao: true,
+    });
+
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.AGUARDANDO_REVISAO,
+      questoes: [questao],
+      erros: [],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    const resultado = importacao.atualizarQuestaoImportada(questao.id, {
+      enunciado: 'Questão importada corrigida',
+      alternativas: [
+        {
+          letra: 'A',
+          texto: 'Alternativa corrigida',
+        },
+      ],
+      disciplina: 'Português',
+      precisaRevisao: false,
+    });
+
+    expect(resultado).toBe(questao);
+    expect(questao.enunciado).toBe('Questão importada corrigida');
+    expect(questao.alternativas).toEqual([
+      {
+        letra: 'A',
+        texto: 'Alternativa corrigida',
+      },
+    ]);
+    expect(questao.disciplina).toBe('Português');
+    expect(questao.precisaRevisao).toBe(false);
+  });
+
+  it('deve impedir atualizar questão importada inexistente', () => {
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.AGUARDANDO_REVISAO,
+      questoes: [],
+      erros: [],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    expect(() =>
+      importacao.atualizarQuestaoImportada(
+        '550e8400-e29b-41d4-a716-446655440001',
+        {
+          enunciado: 'Questão corrigida',
+        },
+      ),
+    ).toThrow(new ImportacaoException('Questão importada não encontrada.'));
+  });
+
+  it('deve impedir atualizar questão importada de importação concluída', () => {
+    const questao = QuestaoImportada.criar({
+      numero: 1,
+      enunciado: 'Questão importada original',
+      tipoSugerido: TipoQuestaoValor.CERTO_ERRADO,
+      confianca: 0.95,
+      precisaRevisao: false,
+    });
+
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.CONCLUIDA,
+      questoes: [questao],
+      erros: [],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    expect(() =>
+      importacao.atualizarQuestaoImportada(questao.id, {
+        enunciado: 'Questão corrigida',
+      }),
+    ).toThrow(
+      new ImportacaoException('Importação concluída não pode ser alterada.'),
+    );
+  });
 });

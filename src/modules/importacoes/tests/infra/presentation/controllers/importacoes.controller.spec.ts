@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { ImportacoesController } from '../../../../presentation/controllers/importacoes.controller';
 import { ImportarProvaPdfPreviewUseCase } from '../../../../application/use-cases/importar-prova-pdf-preview.use-case';
 import { ConfirmarImportacaoProvaUseCase } from '../../../../application/use-cases/confirmar-importacao-prova.use-case';
+import { AtualizarQuestaoImportadaUseCase } from '../../../../application/use-cases/atualizar-questao-importada.use-case';
 import { QuestaoImportada } from '../../../../domain/entities/questao-importada.entity';
 import { TipoQuestaoValor } from '../../../../../questoes/domain/value-objects/tipo-questao.vo';
 import { ImportacaoProva } from '../../../../domain/entities/importacao-prova.entity';
@@ -27,6 +28,9 @@ describe('ImportacoesController', () => {
   let confirmarImportacaoExecuteMock: jest.MockedFunction<
     ConfirmarImportacaoProvaUseCase['execute']
   >;
+  let atualizarQuestaoImportadaExecuteMock: jest.MockedFunction<
+    AtualizarQuestaoImportadaUseCase['execute']
+  >;
   let reviewAnalyzerMock: jest.MockedFunction<
     ImportacaoProvaReviewAnalyzer['analisar']
   >;
@@ -34,6 +38,7 @@ describe('ImportacoesController', () => {
   beforeEach(() => {
     importarPreviewExecuteMock = jest.fn();
     confirmarImportacaoExecuteMock = jest.fn();
+    atualizarQuestaoImportadaExecuteMock = jest.fn();
     reviewAnalyzerMock = jest.fn();
 
     controller = new ImportacoesController(
@@ -43,6 +48,9 @@ describe('ImportacoesController', () => {
       {
         execute: confirmarImportacaoExecuteMock,
       } as unknown as ConfirmarImportacaoProvaUseCase,
+      {
+        execute: atualizarQuestaoImportadaExecuteMock,
+      } as unknown as AtualizarQuestaoImportadaUseCase,
       {
         analisar: reviewAnalyzerMock,
       } as unknown as ImportacaoProvaReviewAnalyzer,
@@ -258,6 +266,83 @@ describe('ImportacoesController', () => {
           updatedAt: questao.updatedAt,
         },
       ],
+    });
+  });
+
+  it('deve atualizar uma questão importada do preview', async () => {
+    const createdAt = new Date('2026-01-01T00:00:00.000Z');
+    const updatedAt = new Date('2026-01-02T00:00:00.000Z');
+
+    const questao = QuestaoImportada.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440001',
+      numero: 1,
+      enunciado: 'Enunciado corrigido',
+      tipoSugerido: TipoQuestaoValor.MULTIPLA_ESCOLHA,
+      alternativas: [
+        {
+          letra: 'A',
+          texto: 'Alternativa corrigida',
+        },
+      ],
+      gabarito: undefined,
+      disciplina: 'Português',
+      assunto: 'Interpretação de texto',
+      textoApoio: 'Texto de apoio corrigido',
+      confianca: 0.75,
+      precisaRevisao: false,
+      createdAt,
+      updatedAt,
+    });
+
+    atualizarQuestaoImportadaExecuteMock.mockResolvedValue(questao);
+
+    const resultado = await controller.atualizarQuestaoImportada(
+      '550e8400-e29b-41d4-a716-446655440000',
+      questao.id,
+      {
+        enunciado: 'Enunciado corrigido',
+        alternativas: [
+          {
+            letra: 'A',
+            texto: 'Alternativa corrigida',
+          },
+        ],
+        textoApoio: 'Texto de apoio corrigido',
+        precisaRevisao: false,
+      },
+    );
+
+    expect(atualizarQuestaoImportadaExecuteMock).toHaveBeenCalledWith({
+      importacaoId: '550e8400-e29b-41d4-a716-446655440000',
+      questaoId: questao.id,
+      enunciado: 'Enunciado corrigido',
+      tipoSugerido: undefined,
+      alternativas: [
+        {
+          letra: 'A',
+          texto: 'Alternativa corrigida',
+        },
+      ],
+      gabarito: undefined,
+      disciplina: undefined,
+      assunto: undefined,
+      textoApoio: 'Texto de apoio corrigido',
+      precisaRevisao: false,
+    });
+    expect(resultado).toEqual({
+      id: questao.id,
+      numero: questao.numero,
+      enunciado: questao.enunciado,
+      tipoSugerido: questao.tipoSugerido,
+      alternativas: questao.alternativas,
+      gabarito: questao.gabarito,
+      disciplina: questao.disciplina,
+      assunto: questao.assunto,
+      textoApoio: questao.textoApoio,
+      confianca: questao.confianca,
+      precisaRevisao: questao.precisaRevisao,
+      createdAt,
+      updatedAt,
     });
   });
 });
