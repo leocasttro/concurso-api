@@ -20,6 +20,7 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
   let buscarPorIdMock: jest.MockedFunction<
     ImportacaoProvaRepository['buscarPorId']
   >;
+  let salvarMock: jest.MockedFunction<ImportacaoProvaRepository['salvar']>;
   let criarProvaExecuteMock: jest.MockedFunction<CriarProvaUseCase['execute']>;
   let importarQuestaoExecuteMock: jest.MockedFunction<
     ImportarQuestaoUseCase['execute']
@@ -27,11 +28,12 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
 
   beforeEach(() => {
     buscarPorIdMock = jest.fn();
+    salvarMock = jest.fn();
     criarProvaExecuteMock = jest.fn();
     importarQuestaoExecuteMock = jest.fn();
 
     importacaoRepository = {
-      salvar: jest.fn(),
+      salvar: salvarMock,
       buscarPorId: buscarPorIdMock,
     };
 
@@ -118,6 +120,9 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
     });
 
     buscarPorIdMock.mockResolvedValue(importacao);
+    salvarMock.mockImplementation((importacaoSalva) =>
+      Promise.resolve(importacaoSalva),
+    );
     criarProvaExecuteMock.mockResolvedValue(prova);
     importarQuestaoExecuteMock.mockResolvedValue(questao);
 
@@ -158,6 +163,9 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
       assunto: 'Interpretação de texto',
       textoApoio: 'Texto de apoio importado',
     });
+    expect(importacao.status.valor).toBe(StatusImportacaoValor.CONCLUIDA);
+    expect(salvarMock).toHaveBeenCalledTimes(1);
+    expect(salvarMock).toHaveBeenCalledWith(importacao);
     expect(resultado).toEqual({
       prova,
       questoes: [questao],
@@ -180,6 +188,7 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
 
     expect(criarProvaExecuteMock).not.toHaveBeenCalled();
     expect(importarQuestaoExecuteMock).not.toHaveBeenCalled();
+    expect(salvarMock).not.toHaveBeenCalled();
   });
 
   it('deve lançar erro quando a importação não possuir questões', async () => {
@@ -207,12 +216,65 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
       }),
     ).rejects.toThrow(
       new ImportacaoException(
-        'Importação não possui questões para confirmar.',
+        'Importação sem questões não pode ser confirmada.',
       ),
     );
 
     expect(criarProvaExecuteMock).not.toHaveBeenCalled();
     expect(importarQuestaoExecuteMock).not.toHaveBeenCalled();
+    expect(salvarMock).not.toHaveBeenCalled();
+  });
+
+  it('deve impedir confirmar importação já concluída', async () => {
+    const questaoImportada = QuestaoImportada.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440001',
+      numero: 1,
+      enunciado: 'Texto da questão importada',
+      tipoSugerido: TipoQuestaoValor.MULTIPLA_ESCOLHA,
+      alternativas: [
+        {
+          letra: 'A',
+          texto: 'Alternativa A',
+        },
+      ],
+      gabarito: undefined,
+      disciplina: undefined,
+      assunto: undefined,
+      textoApoio: undefined,
+      confianca: 0.95,
+      precisaRevisao: false,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    });
+
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.CONCLUIDA,
+      questoes: [questaoImportada],
+      erros: [],
+      avisos: [],
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    });
+
+    buscarPorIdMock.mockResolvedValue(importacao);
+
+    await expect(
+      useCase.execute({
+        importacaoId: importacao.id,
+        titulo: 'PCDF - Agente de Polícia',
+        cargo: 'Agente de Polícia',
+        banca: 'NCE/UFRJ',
+        ano: 2004,
+        categoria: 'Policial',
+      }),
+    ).rejects.toThrow(
+      new ImportacaoException('Importação já foi confirmada.'),
+    );
+
+    expect(criarProvaExecuteMock).not.toHaveBeenCalled();
+    expect(importarQuestaoExecuteMock).not.toHaveBeenCalled();
+    expect(salvarMock).not.toHaveBeenCalled();
   });
 
   it('deve usar MULTIPLA_ESCOLHA quando a questão importada não possuir tipo sugerido', async () => {
@@ -279,6 +341,9 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
     });
 
     buscarPorIdMock.mockResolvedValue(importacao);
+    salvarMock.mockImplementation((importacaoSalva) =>
+      Promise.resolve(importacaoSalva),
+    );
     criarProvaExecuteMock.mockResolvedValue(prova);
     importarQuestaoExecuteMock.mockResolvedValue(questao);
 
@@ -296,5 +361,6 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
         tipo: TipoQuestaoValor.MULTIPLA_ESCOLHA,
       }),
     );
+    expect(salvarMock).toHaveBeenCalledWith(importacao);
   });
 });

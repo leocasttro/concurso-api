@@ -28,11 +28,7 @@ export class ConfirmarImportacaoProvaUseCase {
       throw new ImportacaoException('Importação não encontrada.');
     }
 
-    if (importacao.questoes.length === 0) {
-      throw new ImportacaoException(
-        'Importação não possui questões para confirmar.',
-      );
-    }
+    importacao.validarConfirmacao();
 
     const prova = await this.criarProvaUseCase.execute({
       titulo: input.titulo,
@@ -58,6 +54,10 @@ export class ConfirmarImportacaoProvaUseCase {
         }),
       ),
     );
+
+    importacao.confirmar();
+
+    await this.importacaoRepository.salvar(importacao);
 
     return {
       prova,

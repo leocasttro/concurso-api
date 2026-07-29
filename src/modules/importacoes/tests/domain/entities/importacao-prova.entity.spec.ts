@@ -126,4 +126,98 @@ describe('ImportacaoProva', () => {
 
     expect(() => importacao.cancelar()).toThrow(ImportacaoException);
   });
+
+  it('deve confirmar importação com questões e sem erros', () => {
+    const questao = QuestaoImportada.criar({
+      numero: 1,
+      enunciado: 'Questão importada',
+      tipoSugerido: TipoQuestaoValor.CERTO_ERRADO,
+      confianca: 0.95,
+      precisaRevisao: false,
+    });
+
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.AGUARDANDO_REVISAO,
+      questoes: [questao],
+      erros: [],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    importacao.confirmar();
+
+    expect(importacao.status.valor).toBe(StatusImportacaoValor.CONCLUIDA);
+  });
+
+  it('deve impedir confirmar importação sem questões', () => {
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.FALHOU,
+      questoes: [],
+      erros: [],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    expect(() => importacao.confirmar()).toThrow(
+      new ImportacaoException(
+        'Importação sem questões não pode ser confirmada.',
+      ),
+    );
+  });
+
+  it('deve impedir confirmar importação com erros', () => {
+    const questao = QuestaoImportada.criar({
+      numero: 1,
+      enunciado: 'Questão importada',
+      tipoSugerido: TipoQuestaoValor.CERTO_ERRADO,
+      confianca: 0.95,
+      precisaRevisao: false,
+    });
+
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.AGUARDANDO_REVISAO,
+      questoes: [questao],
+      erros: ['Erro na extração.'],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    expect(() => importacao.confirmar()).toThrow(
+      new ImportacaoException('Importação com erros não pode ser confirmada.'),
+    );
+  });
+
+  it('deve impedir confirmar importação já concluída', () => {
+    const questao = QuestaoImportada.criar({
+      numero: 1,
+      enunciado: 'Questão importada',
+      tipoSugerido: TipoQuestaoValor.CERTO_ERRADO,
+      confianca: 0.95,
+      precisaRevisao: false,
+    });
+
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.CONCLUIDA,
+      questoes: [questao],
+      erros: [],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    expect(() => importacao.confirmar()).toThrow(
+      new ImportacaoException('Importação já foi confirmada.'),
+    );
+  });
 });

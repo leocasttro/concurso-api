@@ -129,4 +129,27 @@ export class ImportacaoProva extends AggregateRoot<string> {
 
     return this.questoes.some((questao) => questao.precisaRevisao);
   }
+
+  validarConfirmacao(): void {
+    if (this.status.valor === StatusImportacaoValor.CONCLUIDA) {
+      throw new ImportacaoException('Importação já foi confirmada.');
+    }
+
+    if (this.questoes.length === 0) {
+      throw new ImportacaoException(
+        'Importação sem questões não pode ser confirmada.',
+      );
+    }
+
+    if (this.erros.length > 0) {
+      throw new ImportacaoException(
+        'Importação com erros não pode ser confirmada.',
+      );
+    }
+  }
+
+  confirmar(): void {
+    this.validarConfirmacao();
+    this.status = StatusImportacao.concluida();
+  }
 }
