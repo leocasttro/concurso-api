@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 
 import { TipoQuestaoValor } from '../../../questoes/domain/value-objects/tipo-questao.vo';
+import { TipoGabaritoValor } from 'src/modules/questoes/domain/value-objects/gabarito.vo';
 
 class AtualizarAlternativaImportadaDto {
   @IsOptional()
@@ -16,16 +17,16 @@ class AtualizarAlternativaImportadaDto {
   letra?: string;
 
   @IsString()
-  texto: string;
+  texto!: string;
 }
 
 class AtualizarGabaritoImportadoDto {
-  @IsString()
-  tipo: string;
+  @IsEnum(TipoGabaritoValor)
+  tipo!: TipoGabaritoValor;
 
   @IsArray()
   @IsString({ each: true })
-  valores: string[];
+  valores!: string[];
 }
 
 export class AtualizarQuestaoImportadaDto {

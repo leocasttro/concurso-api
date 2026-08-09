@@ -2,6 +2,15 @@ import { randomUUID } from 'node:crypto';
 import { BaseEntity } from '../../../../shared/domain/entities/base-entity';
 import { TipoQuestaoValor } from '../../../questoes/domain/value-objects/tipo-questao.vo';
 import { ImportacaoException } from '../exceptions/importacao.exception';
+import {
+  Gabarito,
+  TipoGabaritoValor,
+} from '../../../questoes/domain/value-objects/gabarito.vo';
+
+export type GabaritoImportado = {
+  tipo: TipoGabaritoValor;
+  valores: string[];
+};
 
 export class QuestaoImportada extends BaseEntity<string> {
   private constructor(
@@ -13,12 +22,7 @@ export class QuestaoImportada extends BaseEntity<string> {
       texto: string;
       letra?: string;
     }>,
-    public gabarito:
-      | {
-          tipo: string;
-          valores: string[];
-        }
-      | undefined,
+    public gabarito: GabaritoImportado | undefined,
     public disciplina: string | undefined,
     public assunto: string | undefined,
     public textoApoio: string | undefined,
@@ -38,10 +42,7 @@ export class QuestaoImportada extends BaseEntity<string> {
       texto: string;
       letra?: string;
     }>;
-    gabarito?: {
-      tipo: string;
-      valores: string[];
-    };
+    gabarito?: GabaritoImportado;
     disciplina?: string;
     assunto?: string;
     textoApoio?: string;
@@ -81,10 +82,7 @@ export class QuestaoImportada extends BaseEntity<string> {
       texto: string;
       letra?: string;
     }>;
-    gabarito?: {
-      tipo: string;
-      valores: string[];
-    };
+    gabarito?: GabaritoImportado;
     disciplina?: string;
     assunto?: string;
     textoApoio?: string;
@@ -117,10 +115,7 @@ export class QuestaoImportada extends BaseEntity<string> {
       texto: string;
       letra?: string;
     }>;
-    gabarito?: {
-      tipo: string;
-      valores: string[];
-    };
+    gabarito?: GabaritoImportado;
     disciplina?: string;
     assunto?: string;
     textoApoio?: string;
@@ -166,5 +161,44 @@ export class QuestaoImportada extends BaseEntity<string> {
     if (input.precisaRevisao !== undefined) {
       this.precisaRevisao = input.precisaRevisao;
     }
+  }
+
+  aplicarGabarito(valor: string): void {
+    const valorNormalizado = valor.trim().toUpperCase();
+
+    if (!valorNormalizado) {
+      throw new ImportacaoException('Valor do gabarito é obrigatório.');
+    }
+
+    if (this.tipoSugerido === TipoQuestaoValor.CERTO_ERRADO) {
+      this.gabarito = {
+        tipo: TipoGabaritoValor.CERTO_ERRADO,
+        valores: [this.normalizarGabaritoCertoErrado(valorNormalizado)],
+      };
+
+      this.precisaRevisao = false;
+      return;
+    }
+
+    const gabarito = Gabarito.alternativas([valorNormalizado]);
+
+    this.gabarito = {
+      tipo: gabarito.tipo,
+      valores: gabarito.valores,
+    };
+
+    this.precisaRevisao = false;
+  }
+
+  private normalizarGabaritoCertoErrado(valor: string): string {
+    if (['C', 'CERTO'].includes(valor)) {
+      return 'CERTO';
+    }
+
+    if (['E', 'ERRADO'].includes(valor)) {
+      return 'ERRADO';
+    }
+
+    throw new ImportacaoException('Gabarito certo/errado inválido');
   }
 }

@@ -316,4 +316,89 @@ describe('ImportacaoProva', () => {
       new ImportacaoException('Importação concluída não pode ser alterada.'),
     );
   });
+
+  it('deve aplicar gabarito por número nas questões importadas', () => {
+    const primeiraQuestao = QuestaoImportada.criar({
+      numero: 1,
+      enunciado: 'Questão objetiva',
+      tipoSugerido: TipoQuestaoValor.MULTIPLA_ESCOLHA,
+      alternativas: [
+        {
+          letra: 'A',
+          texto: 'Alternativa A',
+        },
+        {
+          letra: 'B',
+          texto: 'Alternativa B',
+        },
+      ],
+      confianca: 0.6,
+      precisaRevisao: true,
+    });
+
+    const segundaQuestao = QuestaoImportada.criar({
+      numero: 2,
+      enunciado: 'Questão certo ou errado',
+      tipoSugerido: TipoQuestaoValor.CERTO_ERRADO,
+      confianca: 0.6,
+      precisaRevisao: true,
+    });
+
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.AGUARDANDO_REVISAO,
+      questoes: [primeiraQuestao, segundaQuestao],
+      erros: [],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    importacao.aplicarGabarito([
+      {
+        numero: 1,
+        valor: 'b',
+      },
+      {
+        numero: 2,
+        valor: 'c',
+      },
+    ]);
+
+    expect(primeiraQuestao.gabarito).toEqual({
+      tipo: 'ALTERNATIVAS',
+      valores: ['B'],
+    });
+    expect(primeiraQuestao.precisaRevisao).toBe(false);
+    expect(segundaQuestao.gabarito).toEqual({
+      tipo: 'CERTO_ERRADO',
+      valores: ['CERTO'],
+    });
+    expect(segundaQuestao.precisaRevisao).toBe(false);
+  });
+
+  it('deve adicionar aviso quando resposta do gabarito não encontrar questão', () => {
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.AGUARDANDO_REVISAO,
+      questoes: [],
+      erros: [],
+      avisos: [],
+      createdAt: new Date(),
+    });
+
+    importacao.aplicarGabarito([
+      {
+        numero: 99,
+        valor: 'A',
+      },
+    ]);
+
+    expect(importacao.avisos).toEqual([
+      'Gabarito da questão 99 não foi associado a nenhuma questão importada',
+    ]);
+  });
 });

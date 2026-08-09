@@ -3,10 +3,18 @@ import {
   StatusImportacao,
   StatusImportacaoValor,
 } from '../value-objects/status-importacao.vo';
-import { QuestaoImportada } from './questao-importada.entity';
+import {
+  type GabaritoImportado,
+  QuestaoImportada,
+} from './questao-importada.entity';
 import { ImportacaoException } from '../exceptions/importacao.exception';
 import { randomUUID } from 'node:crypto';
 import { TipoQuestaoValor } from '../../../questoes/domain/value-objects/tipo-questao.vo';
+
+export type RespostaGabaritoImportacao = {
+  numero: number;
+  valor: string;
+};
 
 export class ImportacaoProva extends AggregateRoot<string> {
   private constructor(
@@ -88,10 +96,7 @@ export class ImportacaoProva extends AggregateRoot<string> {
         texto: string;
         letra?: string;
       }>;
-      gabarito?: {
-        tipo: string;
-        valores: string[];
-      };
+      gabarito?: GabaritoImportado;
       disciplina?: string;
       assunto?: string;
       textoApoio?: string;
@@ -188,5 +193,32 @@ export class ImportacaoProva extends AggregateRoot<string> {
   confirmar(): void {
     this.validarConfirmacao();
     this.status = StatusImportacao.concluida();
+  }
+
+  aplicarGabarito(respostas: RespostaGabaritoImportacao[]): void {
+    if (this.status.valor === StatusImportacaoValor.CONCLUIDA) {
+      throw new ImportacaoException(
+        'Importação concluída não pode receber gabarito.',
+      );
+    }
+
+    if (respostas.length === 0) {
+      throw new ImportacaoException('Gabarito deve possuir respostas.');
+    }
+
+    respostas.forEach((resposta) => {
+      const questao = this.questoes.find(
+        (item) => item.numero === resposta.numero,
+      );
+
+      if (!questao) {
+        this.adicionarAviso(
+          `Gabarito da questão ${resposta.numero} não foi associado a nenhuma questão importada`,
+        );
+        return;
+      }
+
+      questao.aplicarGabarito(resposta.valor);
+    });
   }
 }
