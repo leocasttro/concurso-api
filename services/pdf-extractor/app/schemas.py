@@ -68,3 +68,23 @@ class QuestoesExtraidasResponse(BaseModel):
     questoes: list[QuestaoResponse]
     avisos: list[str]
     erros: list[str]
+
+
+class RespostaGabaritoExtraidaResponse(BaseModel):
+    numero: int
+    valor: str
+    anulada: bool = False
+
+
+class ModeloGabaritoResponse(BaseModel):
+    identificador: str | None = None
+    respostas: list[RespostaGabaritoExtraidaResponse]
+    avisos: list[str]
+
+
+class GabaritoExtraidoResponse(BaseModel):
+    nome_arquivo: str
+    paginas: int
+    gabaritos: list[ModeloGabaritoResponse]
+    avisos: list[str]
+    erros: list[str]

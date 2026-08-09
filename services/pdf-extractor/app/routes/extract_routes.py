@@ -1,8 +1,15 @@
 from fastapi import APIRouter, File, UploadFile
 
-from app.schemas import TextoExtraidoResponse, QuestoesExtraidasResponse
 from app.services.pdf_text_extractor import PdfTextExtractor
 from app.services.question_parser import QuestionParser
+from app.schemas import (
+    TextoExtraidoResponse,
+    QuestoesExtraidasResponse,
+    GabaritoExtraidoResponse,
+)
+from app.services.answer_key_parser import AnswerKeyParser
+
+answer_key_parser = AnswerKeyParser()
 
 router = APIRouter(prefix="/extrair", tags=["extrair"])
 
@@ -30,6 +37,18 @@ async def extrair_questoes(file: UploadFile = File(...)) -> QuestoesExtraidasRes
     texto, paginas = pdf_text_extractor.extrair(conteudo_arquivo)
 
     return question_parser.parse(
+        texto=texto,
+        nome_arquivo=file.filename or "desconhecido.pdf",
+        paginas=paginas,
+    )
+
+@router.post("/gabarito", response_model=GabaritoExtraidoResponse)
+async def extrair_gabarito(file: UploadFile = File(...)) -> GabaritoExtraidoResponse:
+    conteudo_arquivo = await file.read()
+
+    texto, paginas = pdf_text_extractor.extrair(conteudo_arquivo)
+
+    return answer_key_parser.parse(
         texto=texto,
         nome_arquivo=file.filename or "desconhecido.pdf",
         paginas=paginas,
