@@ -2,11 +2,7 @@ import { QuestaoOrmEntity } from '../persistence/entities/questao.orm-entity';
 import { Questao } from '../../domain/entities/questao.entity';
 import { AlternativaOrmEntity } from '../persistence/entities/alternativa.orm-entity';
 import { Alternativa } from '../../domain/entities/alternativa.entity';
-import {
-  Gabarito,
-  GabaritoCertoErradoValor,
-  TipoGabaritoValor,
-} from '../../domain/value-objects/gabarito.vo';
+import { Gabarito } from '../../domain/value-objects/gabarito.vo';
 
 export class QuestaoMapper {
   static toDomain(entity: QuestaoOrmEntity): Questao {
@@ -83,20 +79,9 @@ export class QuestaoMapper {
       return undefined;
     }
 
-    if (entity.gabaritoTipo === TipoGabaritoValor.ALTERNATIVAS) {
-      return Gabarito.alternativas(entity.gabaritoValores);
-    }
-
-    if (entity.gabaritoTipo === TipoGabaritoValor.CERTO_ERRADO) {
-      return Gabarito.certoErrado(
-        entity.gabaritoValores[0] as GabaritoCertoErradoValor,
-      );
-    }
-
-    if (entity.gabaritoTipo === TipoGabaritoValor.DISCURSIVO) {
-      return Gabarito.discursivo(entity.gabaritoValores[0]);
-    }
-
-    return undefined;
+    return Gabarito.criar({
+      tipo: entity.gabaritoTipo,
+      valores: entity.gabaritoValores,
+    });
   }
 }

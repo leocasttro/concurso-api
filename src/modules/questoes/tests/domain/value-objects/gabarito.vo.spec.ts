@@ -6,6 +6,45 @@ import {
 } from '../../../domain/value-objects/gabarito.vo';
 
 describe('Gabarito', () => {
+  it('deve criar gabarito por tipo ALTERNATIVAS', () => {
+    const gabarito = Gabarito.criar({
+      tipo: TipoGabaritoValor.ALTERNATIVAS,
+      valores: [' a ', 'b'],
+    });
+
+    expect(gabarito.tipo).toBe(TipoGabaritoValor.ALTERNATIVAS);
+    expect(gabarito.valores).toEqual(['A', 'B']);
+  });
+
+  it('deve criar gabarito por tipo CERTO_ERRADO', () => {
+    const gabarito = Gabarito.criar({
+      tipo: TipoGabaritoValor.CERTO_ERRADO,
+      valores: [GabaritoCertoErradoValor.ERRADO],
+    });
+
+    expect(gabarito.tipo).toBe(TipoGabaritoValor.CERTO_ERRADO);
+    expect(gabarito.valores).toEqual([GabaritoCertoErradoValor.ERRADO]);
+  });
+
+  it('deve criar gabarito por tipo DISCURSIVO', () => {
+    const gabarito = Gabarito.criar({
+      tipo: TipoGabaritoValor.DISCURSIVO,
+      valores: [' resposta esperada '],
+    });
+
+    expect(gabarito.tipo).toBe(TipoGabaritoValor.DISCURSIVO);
+    expect(gabarito.valores).toEqual(['resposta esperada']);
+  });
+
+  it('deve lançar QuestaoException quando tipo de gabarito for inválido', () => {
+    expect(() =>
+      Gabarito.criar({
+        tipo: 'INVALIDO' as TipoGabaritoValor,
+        valores: ['A'],
+      }),
+    ).toThrow(new QuestaoException('Tipo de gabarito inválido.'));
+  });
+
   it('deve criar gabarito de alternativa única', () => {
     const gabarito = Gabarito.alternativas(['a']);
 

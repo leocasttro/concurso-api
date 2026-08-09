@@ -17,6 +17,25 @@ export class Gabarito {
     private readonly value: string[],
   ) {}
 
+  static criar(input: {
+    tipo: TipoGabaritoValor;
+    valores: string[];
+  }): Gabarito {
+    if (input.tipo === TipoGabaritoValor.ALTERNATIVAS) {
+      return Gabarito.alternativas(input.valores);
+    }
+
+    if (input.tipo === TipoGabaritoValor.CERTO_ERRADO) {
+      return Gabarito.certoErrado(input.valores[0] as GabaritoCertoErradoValor);
+    }
+
+    if (input.tipo === TipoGabaritoValor.DISCURSIVO) {
+      return Gabarito.discursivo(input.valores[0] ?? '');
+    }
+
+    throw new QuestaoException('Tipo de gabarito inválido.');
+  }
+
   static alternativas(value: string[]): Gabarito {
     const alternativas = value
       .map((item) => item.trim().toUpperCase())
