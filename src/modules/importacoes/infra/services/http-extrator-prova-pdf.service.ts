@@ -7,10 +7,16 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { QuestaoImportada } from '../../domain/entities/questao-importada.entity';
 import { TipoQuestaoValor } from '../../../questoes/domain/value-objects/tipo-questao.vo';
+import { TipoGabaritoValor } from 'src/modules/questoes/domain/value-objects/gabarito.vo';
 
 type MicroserviceAlternativaResponse = {
   letra: string | null;
   texto: string;
+};
+
+type MicroserviceGabaritoResponse = {
+  tipo: TipoGabaritoValor;
+  valores: string[];
 };
 
 type MicroserviceQuestaoResponse = {
@@ -24,6 +30,7 @@ type MicroserviceQuestaoResponse = {
   confianca: number;
   precisa_revisao: boolean;
   avisos: string[];
+  gabarito: MicroserviceGabaritoResponse | null;
 };
 
 type MicroserviceQuestoesResponse = {
@@ -85,6 +92,7 @@ export class HttpExtratorProvaPdfService implements ExtratorProvaPdf {
           textoApoio: questao.texto_apoio ?? undefined,
           confianca: questao.confianca,
           precisaRevisao: questao.precisa_revisao,
+          gabarito: questao.gabarito ?? undefined,
         }),
       ),
       avisos: body.avisos,

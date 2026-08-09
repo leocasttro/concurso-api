@@ -11,6 +11,11 @@ TipoQuestao = Literal[
     "DESCONHECIDA",
 ]
 
+TipoGabarito = Literal[
+    "ALTERNATIVAS",
+    "CERTO_ERRADO",
+    "DISCURSIVO",
+]
 
 class TextoExtraidoResponse(BaseModel):
     nome_arquivo: str
@@ -22,6 +27,9 @@ class AlternativaResponse(BaseModel):
     letra: str | None = None
     texto: str
 
+class GabaritoResponse(BaseModel):
+    tipo: TipoGabarito
+    valores: list[str]
 
 class QuestaoResponse(BaseModel):
     numero: int | None = None
@@ -36,6 +44,7 @@ class QuestaoResponse(BaseModel):
     confianca: float
     precisa_revisao: bool
     avisos: list[str]
+    gabarito: GabaritoResponse | None = None
 
 
 class MetadadosExtracaoResponse(BaseModel):
