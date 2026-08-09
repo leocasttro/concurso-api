@@ -8,6 +8,8 @@ import { ImportarQuestaoUseCase } from '../../../questoes/application/use-cases/
 import { ConfirmarImportacaoProvaInput } from './confirmar-importacao-prova.input';
 import { ImportacaoException } from '../../domain/exceptions/importacao.exception';
 import { TipoQuestaoValor } from '../../../questoes/domain/value-objects/tipo-questao.vo';
+import { Gabarito } from '../../../questoes/domain/value-objects/gabarito.vo';
+import { GabaritoImportado } from '../../domain/entities/questao-importada.entity';
 
 @Injectable()
 export class ConfirmarImportacaoProvaUseCase {
@@ -47,7 +49,7 @@ export class ConfirmarImportacaoProvaUseCase {
           tipo:
             questaoImportada.tipoSugerido ?? TipoQuestaoValor.MULTIPLA_ESCOLHA,
           alternativas: questaoImportada.alternativas,
-          gabarito: undefined,
+          gabarito: this.toGabarito(questaoImportada.gabarito),
           disciplina: questaoImportada.disciplina,
           assunto: questaoImportada.assunto,
           textoApoio: questaoImportada.textoApoio,
@@ -63,5 +65,13 @@ export class ConfirmarImportacaoProvaUseCase {
       prova,
       questoes,
     };
+  }
+
+  private toGabarito(gabarito?: GabaritoImportado): Gabarito | undefined {
+    if (!gabarito) {
+      return undefined;
+    }
+
+    return Gabarito.criar(gabarito);
   }
 }

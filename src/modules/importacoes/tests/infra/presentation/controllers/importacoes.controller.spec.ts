@@ -3,6 +3,7 @@ import { ImportacoesController } from '../../../../presentation/controllers/impo
 import { ImportarProvaPdfPreviewUseCase } from '../../../../application/use-cases/importar-prova-pdf-preview.use-case';
 import { ConfirmarImportacaoProvaUseCase } from '../../../../application/use-cases/confirmar-importacao-prova.use-case';
 import { AtualizarQuestaoImportadaUseCase } from '../../../../application/use-cases/atualizar-questao-importada.use-case';
+import { AplicarGabaritoImportacaoUseCase } from '../../../../application/use-cases/aplicar-gabarito-importacao.use-case';
 import { QuestaoImportada } from '../../../../domain/entities/questao-importada.entity';
 import { TipoQuestaoValor } from '../../../../../questoes/domain/value-objects/tipo-questao.vo';
 import { ImportacaoProva } from '../../../../domain/entities/importacao-prova.entity';
@@ -31,6 +32,9 @@ describe('ImportacoesController', () => {
   let atualizarQuestaoImportadaExecuteMock: jest.MockedFunction<
     AtualizarQuestaoImportadaUseCase['execute']
   >;
+  let aplicarGabaritoImportacaoExecuteMock: jest.MockedFunction<
+    AplicarGabaritoImportacaoUseCase['execute']
+  >;
   let reviewAnalyzerMock: jest.MockedFunction<
     ImportacaoProvaReviewAnalyzer['analisar']
   >;
@@ -39,6 +43,7 @@ describe('ImportacoesController', () => {
     importarPreviewExecuteMock = jest.fn();
     confirmarImportacaoExecuteMock = jest.fn();
     atualizarQuestaoImportadaExecuteMock = jest.fn();
+    aplicarGabaritoImportacaoExecuteMock = jest.fn();
     reviewAnalyzerMock = jest.fn();
 
     controller = new ImportacoesController(
@@ -51,6 +56,9 @@ describe('ImportacoesController', () => {
       {
         execute: atualizarQuestaoImportadaExecuteMock,
       } as unknown as AtualizarQuestaoImportadaUseCase,
+      {
+        execute: aplicarGabaritoImportacaoExecuteMock,
+      } as unknown as AplicarGabaritoImportacaoUseCase,
       {
         analisar: reviewAnalyzerMock,
       } as unknown as ImportacaoProvaReviewAnalyzer,
@@ -344,5 +352,78 @@ describe('ImportacoesController', () => {
       createdAt,
       updatedAt,
     });
+  });
+
+  it('deve aplicar gabarito na importação', async () => {
+    const createdAt = new Date('2026-01-01T00:00:00.000Z');
+
+    const questao = QuestaoImportada.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440001',
+      numero: 1,
+      enunciado: 'Enunciado importado',
+      tipoSugerido: TipoQuestaoValor.MULTIPLA_ESCOLHA,
+      alternativas: [
+        {
+          letra: 'A',
+          texto: 'Alternativa A',
+        },
+        {
+          letra: 'B',
+          texto: 'Alternativa B',
+        },
+      ],
+      gabarito: {
+        tipo: 'ALTERNATIVAS',
+        valores: ['B'],
+      },
+      disciplina: 'Português',
+      assunto: 'Interpretação de texto',
+      textoApoio: undefined,
+      confianca: 0.75,
+      precisaRevisao: false,
+      createdAt,
+    });
+
+    const importacao = ImportacaoProva.reconstituir({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      nomeArquivo: 'prova.pdf',
+      tipoArquivo: 'application/pdf',
+      status: StatusImportacaoValor.AGUARDANDO_REVISAO,
+      questoes: [questao],
+      erros: [],
+      avisos: [],
+      createdAt,
+    });
+
+    aplicarGabaritoImportacaoExecuteMock.mockResolvedValue(importacao);
+    reviewAnalyzerMock.mockReturnValue([]);
+
+    const resultado = await controller.aplicarGabaritoImportacao(
+      importacao.id,
+      {
+        respostas: [
+          {
+            numero: 1,
+            valor: 'B',
+          },
+        ],
+      },
+    );
+
+    expect(aplicarGabaritoImportacaoExecuteMock).toHaveBeenCalledWith({
+      importacaoId: importacao.id,
+      respostas: [
+        {
+          numero: 1,
+          valor: 'B',
+        },
+      ],
+    });
+    expect(reviewAnalyzerMock).toHaveBeenCalledWith(importacao.questoes);
+    expect(resultado.questoes[0].gabarito).toEqual({
+      tipo: 'ALTERNATIVAS',
+      valores: ['B'],
+    });
+    expect(resultado.revisao.totalPendencias).toBe(0);
   });
 });

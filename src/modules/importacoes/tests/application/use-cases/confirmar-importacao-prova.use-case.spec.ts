@@ -6,6 +6,7 @@ import { Questao } from '../../../../questoes/domain/entities/questao.entity';
 import { Alternativa } from '../../../../questoes/domain/entities/alternativa.entity';
 import { StatusQuestaoValor } from '../../../../questoes/domain/value-objects/status-questao.vo';
 import { TipoQuestaoValor } from '../../../../questoes/domain/value-objects/tipo-questao.vo';
+import { Gabarito } from '../../../../questoes/domain/value-objects/gabarito.vo';
 import { ConfirmarImportacaoProvaUseCase } from '../../../application/use-cases/confirmar-importacao-prova.use-case';
 import { ImportacaoException } from '../../../domain/exceptions/importacao.exception';
 import { ImportacaoProva } from '../../../domain/entities/importacao-prova.entity';
@@ -64,7 +65,10 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
           texto: 'Alternativa B',
         },
       ],
-      gabarito: undefined,
+      gabarito: {
+        tipo: 'ALTERNATIVAS',
+        valores: ['B'],
+      },
       disciplina: 'Português',
       assunto: 'Interpretação de texto',
       textoApoio: 'Texto de apoio importado',
@@ -112,7 +116,7 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
           texto: 'Alternativa B',
         }),
       ],
-      gabarito: undefined,
+      gabarito: Gabarito.alternativas(['B']),
       disciplina: 'Português',
       assunto: 'Interpretação de texto',
       textoApoio: 'Texto de apoio importado',
@@ -158,11 +162,15 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
           texto: 'Alternativa B',
         },
       ],
-      gabarito: undefined,
+      gabarito: expect.any(Gabarito),
       disciplina: 'Português',
       assunto: 'Interpretação de texto',
       textoApoio: 'Texto de apoio importado',
     });
+    const inputImportacaoQuestao = importarQuestaoExecuteMock.mock.calls[0][0];
+
+    expect(inputImportacaoQuestao.gabarito?.tipo).toBe('ALTERNATIVAS');
+    expect(inputImportacaoQuestao.gabarito?.valores).toEqual(['B']);
     expect(importacao.status.valor).toBe(StatusImportacaoValor.CONCLUIDA);
     expect(salvarMock).toHaveBeenCalledTimes(1);
     expect(salvarMock).toHaveBeenCalledWith(importacao);
@@ -268,9 +276,7 @@ describe('ConfirmarImportacaoProvaUseCase', () => {
         ano: 2004,
         categoria: 'Policial',
       }),
-    ).rejects.toThrow(
-      new ImportacaoException('Importação já foi confirmada.'),
-    );
+    ).rejects.toThrow(new ImportacaoException('Importação já foi confirmada.'));
 
     expect(criarProvaExecuteMock).not.toHaveBeenCalled();
     expect(importarQuestaoExecuteMock).not.toHaveBeenCalled();

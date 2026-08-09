@@ -17,6 +17,7 @@ import { QuestoesModule } from '../questoes/questoes.module';
 import { ProvasModule } from '../provas/provas.module';
 import { ConfirmarImportacaoProvaUseCase } from './application/use-cases/confirmar-importacao-prova.use-case';
 import { AtualizarQuestaoImportadaUseCase } from './application/use-cases/atualizar-questao-importada.use-case';
+import { AplicarGabaritoImportacaoUseCase } from './application/use-cases/aplicar-gabarito-importacao.use-case';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AtualizarQuestaoImportadaUseCase } from './application/use-cases/atuali
     ImportarProvaPdfPreviewUseCase,
     ConfirmarImportacaoProvaUseCase,
     AtualizarQuestaoImportadaUseCase,
+    AplicarGabaritoImportacaoUseCase,
     {
       provide: IMPORTACAO_PROVA_REPOSITORY,
       useClass: TypeOrmImportacaoProvaRepository,
@@ -49,6 +51,7 @@ import { AtualizarQuestaoImportadaUseCase } from './application/use-cases/atuali
     ImportarProvaPdfPreviewUseCase,
     ConfirmarImportacaoProvaUseCase,
     AtualizarQuestaoImportadaUseCase,
+    AplicarGabaritoImportacaoUseCase,
   ],
 })
 export class ImportacoesModule {}
