@@ -1,4 +1,5 @@
 import { TipoQuestaoValor } from '../../../questoes/domain/value-objects/tipo-questao.vo';
+import { GabaritoImportado } from '../../domain/entities/questao-importada.entity';
 
 export type AtualizarQuestaoImportadaInput = {
   importacaoId: string;
@@ -9,10 +10,7 @@ export type AtualizarQuestaoImportadaInput = {
     texto: string;
     letra?: string;
   }>;
-  gabarito?: {
-    tipo: string;
-    valores: string[];
-  };
+  gabarito?: GabaritoImportado;
   disciplina?: string;
   assunto?: string;
   textoApoio?: string;
